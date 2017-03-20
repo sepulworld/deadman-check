@@ -1,0 +1,21 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'commander/import'
+require 'deadmad_check'
+
+program :name, 'deadman-check'
+program :version, DeadmanCheck::VERSION 
+program :description, 'Monitor a Redis key that contains an EPOCH time entry. Send email if EPOCH age hits given threshold'
+
+command :switch do |c|
+  c.syntax = 'deadman-check switch [options]'
+  c.summary = ''
+  c.description = ''
+  c.example 'description', 'command example'
+  c.option '--some-switch', 'Some switch that does something'
+  c.action do |args, options|
+    c.when_called DeadmanCheck::DeadmanSwitch.new()
+  end
+end
+

@@ -1,5 +1,7 @@
 require "deadman_check/version"
 
 module DeadmanCheck
-  # Your code goes here...
+  Dir[File.dirname(__FILE__) + '/*.rb'].each do |file|
+    require file
+  end
 end
