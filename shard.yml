@@ -1,0 +1,20 @@
+name: deadman_check
+version: 0.1.0
+
+authors:
+  - zane <sepulworld@gmail.com>
+
+dependencies:
+  smtp:
+    github: raydf/smtp.cr
+  commander:
+    github: mrrooijen/commander
+    version: ~> 0.3.3
+  slack:
+    github: DougEverly/slack.cr
+    github: soveran/resp-crystal
+    branch: ~> v0.3.0
+
+crystal: 0.21.1
+
+license: MIT
