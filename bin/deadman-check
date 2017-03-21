@@ -2,47 +2,49 @@
 
 require 'rubygems'
 require 'commander/import'
-require 'deadmad_check'
+require 'deadman_check'
 
 program :name, 'deadman-check'
 program :version, DeadmanCheck::VERSION
-program :description, 'Monitor a Redis key that contains an EPOCH time entry.
-  Send email if EPOCH age hits given threshold'
+program :description, %q{Monitor a Redis key that contains an EPOCH time entry.
+  Send email if EPOCH age hits given threshold}
 
-command :switch-monitor do |c|
-  c.syntax = 'deadman-check switch-monitor [options]'
+command :switch_monitor do |c|
+  c.syntax = 'deadman-check switch_monitor [options]'
   c.summary = 'Target a Redis key to monitor'
   c.description = ''
-  c.example 'Target a Redis key deadman/myservice, and this key has an EPOCH
-     value to check looking to alert on 500 second or greater freshness',
-    'deadman-check switch-monitor --host 127.0.0.1 --port 6379
+  c.example %q{Target a Redis key deadman/myservice, and this key has an EPOCH
+     value to check looking to alert on 500 second or greater freshness},
+    %q{deadman-check switch_monitor --host 127.0.0.1 --port 6379
     --key deadman/myservice --freshness 500 --alert-to ops@mycomany.tld
-    --alert-from ops-no-reply-email@mycomany.tld'
-  c.option '--host', 'IP address or hostname of Redis system'
-  c.option '--port', 'port Redis is listening on'
-  c.option '--key', 'Redis key to monitor'
-  c.option '--freshness', 'The value in seconds to alert on when the recorded
-    EPOCH value exceeds current EPOCH'
-  c.option '--alert-to', 'Email address to send alert to'
-  c.option '--alert-from', 'Email address to send from'
+    --alert-from ops-no-reply-email@mycomany.tld}
+  c.option '--host HOST', String, 'IP address or hostname of Redis system'
+  c.option '--port PORT', String, 'port Redis is listening on'
+  c.option '--key KEY', String, 'Redis key to monitor'
+  c.option '--freshness SECONDS', String, %q{The value in seconds to alert on when the recorded
+    EPOCH value exceeds current EPOCH}
+  c.option '--alert-to EMAIL', String, 'Email address to send alert to'
+  c.option '--alert-from EMAIL', String, 'Email address to send from'
   c.action do |args, options|
     switch_monitor = DeadmanCheck::SwitchMonitor.new(options.host, options.port,
       options.key, options.freshness, options.alert_to, options.alert_from)
-    switch_monitor.
+    switch_monitor.run_check
   end
 end
 
-command :key-set do |c|
-  c.syntax = 'deadman-check key-set [options]'
+command :key_set do |c|
+  c.syntax = 'deadman-check key_set [options]'
   c.summary = 'Update a given Redis key with current EPOCH'
   c.description = ''
-  c.example 'Update a Redis key deadman/myservice, with current EPOCH time',
-    'deadman-check key-set --host 127.0.0.1 --port 6379 --key deadman/myservice'
-  c.option '--host', 'IP address or hostname of Redis system'
-  c.option '--port', 'port Redis is listening on'
-  c.option '--key', 'Redis key to monitor'
+  c.example %q{Update a Redis key deadman/myservice, with current EPOCH time},
+    %q{deadman-check key_set --host 127.0.0.1 --port 6379
+      --key deadman/myservice}
+  c.option '--host HOST', String, 'IP address or hostname of Redis system'
+  c.option '--port PORT', String, 'port Redis is listening on'
+  c.option '--key KEY', String, 'Redis key to monitor'
   c.action do |args, options|
-    c.when_called DeadmanCheck::KeySet.new(options.host, options.port,
+    key_set = DeadmanCheck::KeySet.new(options.host, options.port,
       options.key)
+    key_set.run_redis_key_update
   end
 end
