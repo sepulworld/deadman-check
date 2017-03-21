@@ -1,7 +1,7 @@
 # DeadmanCheck
 
-[![Build Status](https://travis-ci.org/sepulworld/deadman_check.svg)](https://travis-ci.org/sepulworld/deadman_check)
-[![Gem Version](https://badge.fury.io/rb/deadman_check.svg)](http://badge.fury.io/rb/deadman_check)
+[![Build Status](https://travis-ci.org/sepulworld/deadman-check.svg)](https://travis-ci.org/sepulworld/deadman-check)
+[![Gem Version](https://badge.fury.io/rb/deadman-check.svg)](http://badge.fury.io/rb/deadman-check)
 
 Monitor a Redis key that contains an EPOCH time entry. Send email if EPOCH age hits given threshold
 
