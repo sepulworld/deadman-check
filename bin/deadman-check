@@ -3,18 +3,17 @@
 require 'rubygems'
 require 'commander/import'
 require 'deadman_check'
+require 'daemons'
 
 program :name, 'deadman-check'
 program :version, DeadmanCheck::VERSION
-program :description, %q{Monitor a Redis key that contains an EPOCH time entry.
-  Send email if EPOCH age hits given threshold}
+program :description, %q{Monitor a Redis key that contains an EPOCH time entry. Send email if EPOCH age hits given threshold}
 
 command :switch_monitor do |c|
   c.syntax = 'deadman-check switch_monitor [options]'
   c.summary = 'Target a Redis key to monitor'
   c.description = ''
-  c.example %q{Target a Redis key deadman/myservice, and this key has an EPOCH
-     value to check looking to alert on 500 second or greater freshness},
+  c.example %q{Target a Redis key deadman/myservice, and this key has an EPOCH value to check looking to alert on 500 second or greater freshness},
     %q{deadman-check switch_monitor --host 127.0.0.1 --port 6379 --key deadman/myservice --freshness 500 --alert-to ops@mycomany.tld --alert-from ops-no-reply-email@mycomany.tld}
   c.option '--host HOST', String, 'IP address or hostname of Redis system'
   c.option '--port PORT', String, 'port Redis is listening on'
@@ -23,10 +22,17 @@ command :switch_monitor do |c|
     EPOCH value exceeds current EPOCH}
   c.option '--alert-to EMAIL', String, 'Email address to send alert to'
   c.option '--alert-from EMAIL', String, 'Email address to send from'
+  c.option '--daemon', 'Run as a daemon, otherwise will run check just once'
+  c.option '--daemon-sleep SECONDS', String, 'Set the number of seconds to sleep in between switch checks, default 300'
   c.action do |args, options|
+    options.default :daemon_sleep => 300
     switch_monitor = DeadmanCheck::SwitchMonitor.new(options.host, options.port,
-      options.key, options.freshness, options.alert_to, options.alert_from)
-    switch_monitor.run_check
+      options.key, options.freshness, options.alert_to, options.alert_from, options.daemon_sleep)
+    if options.daemon
+      switch_monitor.run_check_once
+    else
+      Daemons.run(switch_monitor.run_check_daemon)
+    end
   end
 end
 

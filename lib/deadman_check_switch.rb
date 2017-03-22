@@ -6,15 +6,16 @@ require 'pony'
 module DeadmanCheck
   # Switch class
   class SwitchMonitor
-    attr_accessor :host, :port, :key, :freshness, :alert_to, :alert_from
+    attr_accessor :host, :port, :key, :freshness, :alert_to, :alert_from, :daemon_sleep
 
-    def initialize(host, port, key, freshness, alert_to, alert_from)
+    def initialize(host, port, key, freshness, alert_to, alert_from, daemon_sleep)
       @host = host
       @port = port
       @key  = key
       @freshness = freshness.to_i
       @alert_to = alert_to
       @alert_from = alert_from
+      @daemon_sleep = daemon_sleep.to_i
     end
 
     def _diff_epoc(current_epoch, recorded_epoch)
@@ -36,13 +37,20 @@ module DeadmanCheck
           #{epoch_diff} seconds since last run")
     end
 
-    def run_check
+    def run_check_once
       recorded_epoch = _get_recorded_epoch(@host, @port, @key).to_i
       current_epoch = DeadmanCheck::DeadmanCheckGlobal.new.get_epoch_time.to_i
       epoch_diff = _diff_epoc(current_epoch, recorded_epoch)
       if epoch_diff > @freshness
         email_alert(@alert_to, @alert_from, @key,
         recorded_epoch, current_epoch, epoch_diff)
+      end
+    end
+
+    def run_check_daemon
+      loop do
+        run_check_once
+        sleep(@daemon_sleep)
       end
     end
 
