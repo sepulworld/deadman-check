@@ -20,18 +20,17 @@ command :switch_monitor do |c|
   c.option '--key KEY', String, 'Redis key to monitor'
   c.option '--freshness SECONDS', String, %q{The value in seconds to alert on when the recorded
     EPOCH value exceeds current EPOCH}
-  c.option '--alert-to EMAIL', String, 'Email address to send alert to'
-  c.option '--alert-from EMAIL', String, 'Email address to send from'
+  c.option '--alert-to SLACKROOM', String, 'Slackroom to alert to'
   c.option '--daemon', 'Run as a daemon, otherwise will run check just once'
   c.option '--daemon-sleep SECONDS', String, 'Set the number of seconds to sleep in between switch checks, default 300'
   c.action do |args, options|
     options.default :daemon_sleep => 300
     switch_monitor = DeadmanCheck::SwitchMonitor.new(options.host, options.port,
-      options.key, options.freshness, options.alert_to, options.alert_from, options.daemon_sleep)
+      options.key, options.freshness, options.alert_to, options.daemon_sleep)
     if options.daemon
-      switch_monitor.run_check_once
-    else
       Daemons.run(switch_monitor.run_check_daemon)
+    else
+      switch_monitor.run_check_once
     end
   end
 end
@@ -44,7 +43,7 @@ command :key_set do |c|
     %q{deadman-check key_set --host 127.0.0.1 --port 6379 --key deadman/myservice}
   c.option '--host HOST', String, 'IP address or hostname of Redis system'
   c.option '--port PORT', String, 'port Redis is listening on'
-  c.option '--key KEY', String, 'Redis key to monitor'
+  c.option '--key KEY', String, 'Redis key to report EPOCH time to'
   c.action do |args, options|
     key_set = DeadmanCheck::KeySet.new(options.host, options.port,
       options.key)

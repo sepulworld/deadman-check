@@ -1,11 +1,137 @@
 # DeadmanCheck
 
-[![Build Status](https://travis-ci.org/sepulworld/deadman-check.svg)](https://travis-ci.org/sepulworld/deadman-check)
-[![Gem Version](https://badge.fury.io/rb/deadman-check.svg)](http://badge.fury.io/rb/deadman-check)
+[![Build Status](https://travis-ci.org/sepulworld/deadman-check.svg)](https://travis-ci.org/sepulworld/deadman_check)
+[![Gem Version](https://badge.fury.io/rb/deadman-check.svg)](http://badge.fury.io/rb/deadman_check)
 
-Monitor a Redis key that contains an EPOCH time entry. Send email if EPOCH age hits given threshold
+A monitoring companion for Nomad periodic jobs that alerts if periodic jobs are
+not processing as expected. The deadman-check has 2 modes, one to run with the
+Nomad periodic job as an additional [task](https://www.nomadproject.io/docs/job-specification/task.html) to update a key in Redis with current EPOCH time. The other mode is of deadman-check
+is intended to run as a separate process that will monitor the Redis key's EPOCH
+time value and alert if that value fails to meet a time 'freshness' threshold that
+is expected for that job.
 
-## Installation
+* requires a Redis instance
+* alerting requires a Slack API token to send messages
+
+## Example Usage
+
+Let's say I have a Nomad periodic job that is set to run every 10 minutes. The Nomad configuration looks like this:
+
+```hcl
+job "SilverBulletPeriodic" {
+  type = "batch"
+
+  periodic {
+    cron             = "*/10 * * * * *"
+    prohibit_overlap = true
+  }
+
+  group "utility" {
+    task "SilverBulletPeriodicProcess" {
+      driver = "docker"
+      config {
+        image    = "silverbullet:build_1"
+        work_dir = "/utility/silverbullet"
+        command  = "blaster"
+      }
+      resources {
+        cpu = 100
+        memory = 500
+      }
+    }
+  }
+}
+```
+
+To monitor the SilverBulletPeriodicProcess task let's add a deadmad-check task to
+run post updates to a Redis endpoint (10.0.0.1 for this example)
+
+```hcl
+job "SilverBulletPeriodic" {
+  type = "service"
+
+
+  group "silverbullet" {
+    task "SilverBulletPeriodicProcess" {
+      driver = "docker"
+      config {
+        image    = "silverbullet:build_1"
+        work_dir = "/utility/silverbullet"
+        command  = "blaster"
+      }
+      resources {
+        cpu = 100
+        memory = 500
+      }
+    }
+    task "DeadmanSetSilverBulletPeriodicProcess" {
+      driver = "docker"
+      config {
+        image    = "sepulworld/deadman-check"
+        command  = "key_set"
+        args     = [
+          "--host",
+          "10.0.0.1",
+          "--port",
+          "6379",
+          "--key",
+          "deadman/SilverBulletPeriodicProcess"]
+      }
+      resources {
+        cpu = 100
+        memory = 256
+      }
+    }
+  }
+}
+```
+
+Now the key, deadman/SilverBulletPeriodicProcess, in redis1.mydomain.net will be updated with
+the EPOCH time for each SilverBulletPeriodic job run. If the job hangs or fails to run
+we will know via the EPOCH time entry going stale.
+
+Next we need a job that will run to monitor this key.
+
+```hcl
+job "DeadmanMonitoring" {
+  type = "service"
+
+  group "monitor" {
+    task "DeadmanMonitorSilverBulletPeriodicProcess" {
+      driver = "docker"
+      config {
+        image    = "sepulworld/deadman-check"
+        command  = "switch_monitor"
+        args     = [
+          "--host",
+          "10.0.0.1",
+          "--port",
+          "6379",
+          "--key",
+          "deadman/SilverBulletPeriodicProcess",
+          "--freshness",
+          "800",
+          "--alert-to",
+          "#slackroom",
+          "--daemon",
+          "--daemon-sleep",
+          "30"]
+      }
+      resources {
+        cpu = 100
+        memory = 256
+      }
+      env {
+        SLACK_API_TOKEN = "yourtokengoeshere"
+      }
+    }
+  }
+}
+```
+
+Monitor a Redis key that contains an EPOCH time entry. Send Slack message if EPOCH age hits given threshold
+
+## Local system installation
 
 And then execute:
 
@@ -15,7 +141,23 @@ Or install it yourself as:
 
     $ gem install deadman_check
 
-## Usage
+## Install and run deadman-check from Docker
+
+```
+# Optional: If you don't pull explicitly, `docker run` will do it for you
+$ docker pull sepulworld/deadman-check
+
+$ alias deadman-check='\
+  docker run \
+    -it --rm --name=deadman-check \
+    sepulworld/deadman-check'
+```
+
+(Depending on how your system is set up, you might have to add sudo in front of the above docker commands or add your user to the docker group).
+
+If you don't do the docker pull, the first time you run deadman-check, the docker run command will automatically pull the sepulworld/deadman-check image on the Docker Hub. Subsequent runs will use a locally cached copy of the image and will not have to download anything.
+
+## Usage via Local System Install
 
 ```bash
 $ deadman-check -h
@@ -26,7 +168,7 @@ $ deadman-check -h
   DESCRIPTION:
 
     Monitor a Redis key that contains an EPOCH time entry.
-      Send email if EPOCH age hits given threshold
+      Send Slack message if EPOCH age hits given threshold
 
   COMMANDS:
 
@@ -106,8 +248,7 @@ $ deadman-check switch_monitor -h
       --port 6379 \
       --key deadman/myservice \
       --freshness 500 \
-      --alert-to ops@mycomany.tld \
-      --alert-from ops-no-reply-email@mycomany.tld
+      --alert-to #slackroom
 
   OPTIONS:
 
@@ -124,11 +265,9 @@ $ deadman-check switch_monitor -h
         The value in seconds to alert on when the recorded
             EPOCH value exceeds current EPOCH
 
-    --alert-to EMAIL
-        Email address to send alert to
+    --alert-to SLACKROOM
+        Slackroom to alert to  
 
-    --alert-from EMAIL
-        Email address to send from
 ```
 
 ## Development

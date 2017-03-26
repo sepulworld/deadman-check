@@ -36,6 +36,6 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'commander', '~> 4.4', '>= 4.4.3'
   spec.add_dependency 'redis', '~> 3.3', '>= 3.3.3'
-  spec.add_dependency 'pony', '~> 1.1'
+  spec.add_dependency 'slack-ruby-client', '~> 0.8.0'
   spec.add_dependency 'daemons', '~> 1.2.4', '>=1.2.4'
 end
