@@ -5,8 +5,8 @@
 
 A monitoring companion for Nomad periodic jobs that alerts if periodic jobs are
 not processing as expected. The deadman-check has 2 modes, one to run with the
-Nomad periodic job as an additional [task](https://www.nomadproject.io/docs/job-specification/task.html) to update a key in Redis with current EPOCH time. The other mode is of deadman-check
-is intended to run as a separate process that will monitor the Redis key's EPOCH
+Nomad periodic job as an additional [task](https://www.nomadproject.io/docs/job-specification/task.html) to update a key in Consul with current EPOCH time. The other mode is of deadman-check
+is intended to run as a separate process that will monitor the Consul key's EPOCH
 time value and alert if that value fails to meet a time 'freshness' threshold that
 is expected for that job.
 
@@ -44,7 +44,7 @@ job "SilverBulletPeriodic" {
 ```
 
 To monitor the SilverBulletPeriodicProcess task let's add a deadmad-check task to
-run post updates to a Redis endpoint (10.0.0.1 for this example)
+run post updates to a Consul endpoint (10.0.0.1 for this example)
 
 ```hcl
 job "SilverBulletPeriodic" {
@@ -135,7 +135,7 @@ job "DeadmanMonitoring" {
 }
 ```
 
-Monitor a Redis key that contains an EPOCH time entry. Send a Slack message if EPOCH age hits given threshold
+Monitor a Consul key that contains an EPOCH time entry. Send a Slack message if EPOCH age hits given threshold
 
 <img width="752" alt="screen shot 2017-03-26 at 3 29 28 pm" src="https://cloud.githubusercontent.com/assets/538171/24335811/2e57eee8-1239-11e7-9fff-c8a10d956f2e.png">
 
@@ -174,14 +174,14 @@ $ deadman-check -h
 
   DESCRIPTION:
 
-    Monitor a Redis key that contains an EPOCH time entry.
+    Monitor a Consul key that contains an EPOCH time entry.
       Send a Slack message if EPOCH age hits given threshold
 
   COMMANDS:
 
     help           Display global or [command] help documentation
-    key_set        Update a given Redis key with current EPOCH
-    switch_monitor Target a Redis key to monitor
+    key_set        Update a given Consul key with current EPOCH
+    switch_monitor Target a Consul key to monitor
 
   GLOBAL OPTIONS:
 
@@ -214,19 +214,19 @@ $ deadman-check key_set -h
 
   EXAMPLES:
 
-    # Update a Redis key deadman/myservice, with current EPOCH time
+    # Update a Consul key deadman/myservice, with current EPOCH time
     deadman-check key_set --host 127.0.0.1 --port 8500 --key deadman/myservice
 
   OPTIONS:
 
     --host HOST
-        IP address or hostname of Redis system
+        IP address or hostname of Consul system
 
     --port PORT
-        port Redis is listening on
+        port Consul is listening on
 
     --key KEY
-        Redis key to monitor
+        Consul key to monitor
 ```
 
 ### Usage for switch_monitor command
@@ -248,7 +248,7 @@ $ deadman-check switch_monitor -h
 
   EXAMPLES:
 
-    # Target a Redis key deadman/myservice, and this key has an EPOCH
+    # Target a Consul key deadman/myservice, and this key has an EPOCH
      value to check looking to alert on 500 second or greater freshness
     deadman-check switch_monitor \
       --host 127.0.0.1 \
@@ -260,13 +260,13 @@ $ deadman-check switch_monitor -h
   OPTIONS:
 
     --host HOST
-        IP address or hostname of Redis system
+        IP address or hostname of Consul system
 
     --port PORT
-        port Redis is listening on
+        port Consul is listening on
 
     --key KEY
-        Redis key to monitor
+        Consul key to monitor
 
     --freshness SECONDS
         The value in seconds to alert on when the recorded
