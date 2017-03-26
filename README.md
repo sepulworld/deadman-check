@@ -115,7 +115,10 @@ job "DeadmanMonitoring" {
           "--freshness",
           "800",
           "--alert-to",
-          "#slackroom"]
+          "#slackroom",
+          "--daemon",
+          "--daemon-sleep",
+          "900"]
       }
       resources {
         cpu = 100
@@ -260,7 +263,13 @@ $ deadman-check switch_monitor -h
             EPOCH value exceeds current EPOCH
 
     --alert-to SLACKROOM
-        Slackroom to alert to  
+        Slackroom to alert to
+
+    --daemon
+        Run as a daemon, otherwise will run check just once
+
+    --daemon-sleep SECONDS
+        Set the number of seconds to sleep in between switch checks, default 300
 ```
 
 ## Development
