@@ -124,6 +124,9 @@ job "DeadmanMonitoring" {
         cpu = 100
         memory = 256
       }
+      env {
+        SLACK_API_TOKEN = "YourSlackApiToken"
+      }
     }
   }
 }
