@@ -9,11 +9,11 @@ Gem::Specification.new do |spec|
   spec.authors       = ["zane"]
   spec.email         = ["zane.williamson@gmail.com"]
 
-  spec.summary       = %q{Monitor a Redis key that contains an EPOCH time entry.
+  spec.summary       = %q{Monitor a Consul key that contains an EPOCH time entry.
     Send email if EPOCH age hits given threshold}
-  spec.description   = %q{A script to check a given Redis key EPOCH for
+  spec.description   = %q{A script to check a given Consul key EPOCH for
     freshness. Good for monitoring cron jobs or batch jobs. Have the last step
-    of the job post the EPOCH time to target Redis key. This script will monitor
+    of the job post the EPOCH time to target Consul key. This script will monitor
     it for a given freshness value (difference in time now to posted EPOCH)}
   spec.homepage      = "https://github.com/sepulworld/deadman-check"
   spec.license       = "MIT"
