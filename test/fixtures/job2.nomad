@@ -17,7 +17,7 @@ job "SilverBulletPeriodic" {
           "--host",
           "192.168.43.145",
           "--port",
-          "6379",
+          "8500",
           "--key",
           "deadman/SilverBulletPeriodicProcess"]
       }

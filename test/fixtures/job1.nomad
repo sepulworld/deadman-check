@@ -10,9 +10,9 @@ job "DeadmanMonitoring" {
         command  = "switch_monitor"
         args     = [
           "--host",
-          "192.168.40.174",
+          "192.168.43.145",
           "--port",
-          "6379",
+          "8500",
           "--key",
           "deadman/SilverBulletPeriodicProcess",
           "--freshness",
@@ -28,7 +28,7 @@ job "DeadmanMonitoring" {
         memory = 500 
       }
       env {
-        SLACK_API_TOKEN = "PutYourTokenHere"
+        SLACK_API_TOKEN = "YourSlackKeyHere"
       }
     }
   }
