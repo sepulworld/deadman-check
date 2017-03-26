@@ -135,6 +135,9 @@ job "DeadmanMonitoring" {
 
 Monitor a Redis key that contains an EPOCH time entry. Send a Slack message if EPOCH age hits given threshold
 
+
+# Non-Nomad Use:
+
 ## Local system installation
 
 execute:
