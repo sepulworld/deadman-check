@@ -1,6 +1,6 @@
 require 'deadman_check/version'
 require 'deadman_check_global'
-require 'redis'
+require 'diplomat'
 require 'slack-ruby-client'
 
 module DeadmanCheck
@@ -27,8 +27,8 @@ module DeadmanCheck
     end
 
     def _get_recorded_epoch(host, port, key)
-      redis = Redis.new(:host => host, :port => port)
-      recorded_epoch = redis.get(key)
+      DeadmanCheck::DeadmanCheckGlobal.new.configure_diplomat(host, port)
+      recorded_epoch = Diplomat::Kv.get(key)
       return recorded_epoch
     end
 

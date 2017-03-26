@@ -10,8 +10,8 @@ is intended to run as a separate process that will monitor the Redis key's EPOCH
 time value and alert if that value fails to meet a time 'freshness' threshold that
 is expected for that job.
 
-* requires a Redis instance
-* alerting requires a SLACK_API_TOKEN environment variable
+* Requires a Consul instance
+* Alerting requires a SLACK_API_TOKEN environment variable
 
 ## Example Usage
 

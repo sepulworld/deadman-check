@@ -15,7 +15,7 @@ job "SilverBulletPeriodic" {
         command  = "key_set"
         args     = [
           "--host",
-          "192.168.40.174",
+          "192.168.43.145",
           "--port",
           "6379",
           "--key",
