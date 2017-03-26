@@ -14,7 +14,7 @@ command :switch_monitor do |c|
   c.summary = 'Target a Consul key to monitor'
   c.description = ''
   c.example %q{Target a Consul key deadman/myservice, and this key has an EPOCH value to check looking to alert on 500 second or greater freshness},
-    %q{deadman-check switch_monitor --host 127.0.0.1 --port 6379 --key deadman/myservice --freshness 500 --alert-to ops@mycomany.tld --alert-from ops-no-reply-email@mycomany.tld}
+    %q{deadman-check switch_monitor --host 127.0.0.1 --port 8500 --key deadman/myservice --freshness 500 --alert-to ops@mycomany.tld --alert-from ops-no-reply-email@mycomany.tld}
   c.option '--host HOST', String, 'IP address or hostname of Consul system'
   c.option '--port PORT', String, 'port Consul is listening on'
   c.option '--key KEY', String, 'Consul key to monitor'
@@ -40,7 +40,7 @@ command :key_set do |c|
   c.summary = 'Update a given Consul key with current EPOCH'
   c.description = ''
   c.example %q{Update a Consul key deadman/myservice, with current EPOCH time},
-    %q{deadman-check key_set --host 127.0.0.1 --port 6379 --key deadman/myservice}
+    %q{deadman-check key_set --host 127.0.0.1 --port 8500 --key deadman/myservice}
   c.option '--host HOST', String, 'IP address or hostname of Consul system'
   c.option '--port PORT', String, 'port Consul is listening on'
   c.option '--key KEY', String, 'Consul key to report EPOCH time to'

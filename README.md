@@ -77,7 +77,7 @@ job "SilverBulletPeriodic" {
           "--host",
           "10.0.0.1",
           "--port",
-          "6379",
+          "8500",
           "--key",
           "deadman/SilverBulletPeriodicProcess"]
       }
@@ -110,7 +110,7 @@ job "DeadmanMonitoring" {
           "--host",
           "10.0.0.1",
           "--port",
-          "6379",
+          "8500",
           "--key",
           "deadman/SilverBulletPeriodicProcess",
           "--freshness",
@@ -212,7 +212,7 @@ $ deadman-check key_set -h
   EXAMPLES:
 
     # Update a Redis key deadman/myservice, with current EPOCH time
-    deadman-check key_set --host 127.0.0.1 --port 6379 --key deadman/myservice
+    deadman-check key_set --host 127.0.0.1 --port 8500 --key deadman/myservice
 
   OPTIONS:
 
@@ -249,7 +249,7 @@ $ deadman-check switch_monitor -h
      value to check looking to alert on 500 second or greater freshness
     deadman-check switch_monitor \
       --host 127.0.0.1 \
-      --port 6379 \
+      --port 8500 \
       --key deadman/myservice \
       --freshness 500 \
       --alert-to slackroom
