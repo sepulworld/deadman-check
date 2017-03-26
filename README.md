@@ -116,7 +116,7 @@ job "DeadmanMonitoring" {
           "--freshness",
           "800",
           "--alert-to",
-          "#slackroom",
+          "slackroom",
           "--daemon",
           "--daemon-sleep",
           "900"]
@@ -249,7 +249,7 @@ $ deadman-check switch_monitor -h
       --port 6379 \
       --key deadman/myservice \
       --freshness 500 \
-      --alert-to #slackroom
+      --alert-to slackroom
 
   OPTIONS:
 
@@ -267,7 +267,7 @@ $ deadman-check switch_monitor -h
             EPOCH value exceeds current EPOCH
 
     --alert-to SLACKROOM
-        Slackroom to alert to
+        Slackroom to alert to, don't include the # tag in name
 
     --daemon
         Run as a daemon, otherwise will run check just once
