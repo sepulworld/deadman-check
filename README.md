@@ -90,7 +90,7 @@ job "SilverBulletPeriodic" {
 }
 ```
 
-Now the key, deadman/SilverBulletPeriodicProcess, in redis1.mydomain.net will be updated with
+Now the key, deadman/SilverBulletPeriodicProcess, at 10.0.0.1 will be updated with
 the EPOCH time for each SilverBulletPeriodic job run. If the job hangs or fails to run
 we will know via the EPOCH time entry going stale.
 
