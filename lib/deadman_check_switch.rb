@@ -1,21 +1,24 @@
 require 'deadman_check/version'
 require 'deadman_check_global'
 require 'redis'
-require 'pony'
+require 'slack-ruby-client'
 
 module DeadmanCheck
   # Switch class
   class SwitchMonitor
-    attr_accessor :host, :port, :key, :freshness, :alert_to, :alert_from, :daemon_sleep
+    attr_accessor :host, :port, :key, :freshness, :alert_to, :daemon_sleep
 
-    def initialize(host, port, key, freshness, alert_to, alert_from, daemon_sleep)
+    def initialize(host, port, key, freshness, alert_to, daemon_sleep)
       @host = host
       @port = port
       @key  = key
       @freshness = freshness.to_i
       @alert_to = alert_to
-      @alert_from = alert_from
       @daemon_sleep = daemon_sleep.to_i
+    end
+
+    Slack.configure do |config|
+      config.token = ENV['SLACK_API_TOKEN']
     end
 
     def _diff_epoc(current_epoch, recorded_epoch)
@@ -29,12 +32,11 @@ module DeadmanCheck
       return recorded_epoch
     end
 
-    def email_alert(alert_to, alert_from, key, recorded_epoch, current_epoch,
-      epoch_diff)
-      Pony.mail(:to => alert_to, :from => alert_from,
-        :subject => "Alert: Deadman Switch Triggered for #{key}",
-        :body => "Alert: Deadman Switch Triggered for #{key}, with
-          #{epoch_diff} seconds since last run")
+    def slack_alert(alert_to, key, epoch_diff)
+      client = Slack::Web::Client.new
+      client.chat_postMessage(channel: alert_to, text: "Alert: Deadman Switch
+        Triggered for #{key}, with #{epoch_diff} seconds since last run",
+        username: 'deadman')
     end
 
     def run_check_once
@@ -42,8 +44,7 @@ module DeadmanCheck
       current_epoch = DeadmanCheck::DeadmanCheckGlobal.new.get_epoch_time.to_i
       epoch_diff = _diff_epoc(current_epoch, recorded_epoch)
       if epoch_diff > @freshness
-        email_alert(@alert_to, @alert_from, @key,
-        recorded_epoch, current_epoch, epoch_diff)
+        slack_alert(@alert_to, @key, epoch_diff)
       end
     end
 
