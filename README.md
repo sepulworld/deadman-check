@@ -11,6 +11,7 @@ time value and alert if that value fails to meet a time 'freshness' threshold th
 is expected for that job.
 
 * requires a Redis instance
+* alerting requires a SLACK_API_TOKEN environment variable
 
 ## Example Usage
 
