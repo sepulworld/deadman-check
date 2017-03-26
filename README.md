@@ -1,6 +1,6 @@
 # DeadmanCheck
 
-[![Build Status](https://travis-ci.org/sepulworld/deadman-check.svg)](https://travis-ci.org/sepulworld/deadman_check)
+[![Build Status](https://travis-ci.org/sepulworld/deadman-check.svg)](https://travis-ci.org/sepulworld/deadman-check)
 [![Gem Version](https://badge.fury.io/rb/deadman-check.svg)](http://badge.fury.io/rb/deadman_check)
 
 A monitoring companion for Nomad periodic jobs that alerts if periodic jobs are
