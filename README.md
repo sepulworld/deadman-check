@@ -10,6 +10,7 @@ is intended to run as a separate process that will monitor the Consul key's EPOC
 time value and alert if that value fails to meet a time 'freshness' threshold that
 is expected for that job.
 
+
 * Requires a Consul instance
 * Alerting requires a SLACK_API_TOKEN environment variable
 
