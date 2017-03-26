@@ -11,7 +11,6 @@ time value and alert if that value fails to meet a time 'freshness' threshold th
 is expected for that job.
 
 * requires a Redis instance
-* alerting requires a Slack API token to send messages
 
 ## Example Usage
 
@@ -48,8 +47,12 @@ run post updates to a Redis endpoint (10.0.0.1 for this example)
 
 ```hcl
 job "SilverBulletPeriodic" {
-  type = "service"
+  type = "batch"
 
+  periodic {
+    cron             = "*/10 * * * * *"
+    prohibit_overlap = true
+  }
 
   group "silverbullet" {
     task "SilverBulletPeriodicProcess" {
@@ -112,33 +115,24 @@ job "DeadmanMonitoring" {
           "--freshness",
           "800",
           "--alert-to",
-          "#slackroom",
-          "--daemon",
-          "--daemon-sleep",
-          "30"]
+          "#slackroom"]
       }
       resources {
         cpu = 100
         memory = 256
-      }
-      env {
-        SLACK_API_TOKEN = "yourtokengoeshere"
       }
     }
   }
 }
 ```
 
-Monitor a Redis key that contains an EPOCH time entry. Send Slack message if EPOCH age hits given threshold
+Monitor a Redis key that contains an EPOCH time entry. Send a Slack message if EPOCH age hits given threshold
 
 ## Local system installation
 
-And then execute:
+execute:
 
-    $ bundle
-
-Or install it yourself as:
-
+    $ bundle install
     $ gem install deadman_check
 
 ## Install and run deadman-check from Docker
@@ -168,7 +162,7 @@ $ deadman-check -h
   DESCRIPTION:
 
     Monitor a Redis key that contains an EPOCH time entry.
-      Send Slack message if EPOCH age hits given threshold
+      Send a Slack message if EPOCH age hits given threshold
 
   COMMANDS:
 
@@ -267,7 +261,6 @@ $ deadman-check switch_monitor -h
 
     --alert-to SLACKROOM
         Slackroom to alert to  
-
 ```
 
 ## Development
