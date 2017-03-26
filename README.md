@@ -90,6 +90,8 @@ job "SilverBulletPeriodic" {
 }
 ```
 
+<img width="1215" alt="screen shot 2017-03-26 at 3 28 50 pm" src="https://cloud.githubusercontent.com/assets/538171/24335809/276147ec-1239-11e7-83d8-0fca95bebdc2.png">
+
 Now the key, deadman/SilverBulletPeriodicProcess, at 10.0.0.1 will be updated with
 the EPOCH time for each SilverBulletPeriodic job run. If the job hangs or fails to run
 we will know via the EPOCH time entry going stale.
@@ -135,6 +137,7 @@ job "DeadmanMonitoring" {
 
 Monitor a Redis key that contains an EPOCH time entry. Send a Slack message if EPOCH age hits given threshold
 
+<img width="752" alt="screen shot 2017-03-26 at 3 29 28 pm" src="https://cloud.githubusercontent.com/assets/538171/24335811/2e57eee8-1239-11e7-9fff-c8a10d956f2e.png">
 
 # Non-Nomad Use:
 
