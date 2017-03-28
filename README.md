@@ -3,13 +3,16 @@
 [![Build Status](https://travis-ci.org/sepulworld/deadman-check.svg)](https://travis-ci.org/sepulworld/deadman-check)
 [![Gem Version](https://badge.fury.io/rb/deadman_check.svg)](http://badge.fury.io/rb/deadman_check)
 
-A monitoring companion for Nomad periodic jobs that alerts if periodic jobs are
-not processing as expected. The deadman-check has 2 modes, one to run with the
-Nomad periodic job as an additional [task](https://www.nomadproject.io/docs/job-specification/task.html) to update a key in Consul with current EPOCH time. The other mode is of deadman-check
-is intended to run as a separate process that will monitor the Consul key's EPOCH
+A monitoring companion for Nomad periodic [jobs](https://www.nomadproject.io/docs/job-specification/periodic.html) that alerts if periodic isn't
+running at the expected interval. 
+
+The deadman-check has 2 modes: 
+
+1. Run with the Nomad periodic job as an additional [task](https://www.nomadproject.io/docs/job-specification/task.html) to update a key in Consul with current EPOCH time. 
+
+2. Run as a separate process that will monitor the Consul key's EPOCH
 time value and alert if that value fails to meet a time 'freshness' threshold that
 is expected for that job.
-
 
 * Requires a Consul instance
 * Alerting requires a SLACK_API_TOKEN environment variable
