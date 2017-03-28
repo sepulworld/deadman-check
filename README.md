@@ -14,8 +14,10 @@ The deadman-check has 2 modes:
 time value and alert if that value fails to meet a time 'freshness' threshold that
 is expected for that job.
 
-* Requires a Consul instance
-* Alerting requires a SLACK_API_TOKEN environment variable
+
+### Requirements 
+* [Consul](https://www.consul.io/) instance
+* Alerting requires a SLACK_API_TOKEN environment variable to be set (use [Slack Bot integration](https://my.slack.com/services/new/bot))
 
 ## Example Usage
 
