@@ -20,6 +20,7 @@ Let's say I have a Nomad periodic job that is set to run every 10 minutes. The N
 
 ```hcl
 job "SilverBulletPeriodic" {
+  datacenters = ["dc1"]
   type = "batch"
 
   periodic {
@@ -49,6 +50,7 @@ run post updates to a Consul endpoint (10.0.0.1 for this example)
 
 ```hcl
 job "SilverBulletPeriodic" {
+  datacenters = ["dc1"]
   type = "batch"
 
   periodic {
@@ -101,6 +103,7 @@ Next we need a job that will run to monitor this key.
 
 ```hcl
 job "DeadmanMonitoring" {
+  datacenters = ["dc1"]
   type = "service"
 
   group "monitor" {
