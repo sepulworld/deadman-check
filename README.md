@@ -2,20 +2,22 @@
 
 [![Build Status](https://travis-ci.org/sepulworld/deadman-check.svg)](https://travis-ci.org/sepulworld/deadman-check)
 [![Gem Version](https://badge.fury.io/rb/deadman_check.svg)](http://badge.fury.io/rb/deadman_check)
+[![Docker Image](https://images.microbadger.com/badges/image/sepulworld/deadman-check.svg)](http://microbadger.com/images/sepulworld/deadman-check "Get your own image badge on microbadger.com")
+[![Docker Image Version](https://images.microbadger.com/badges/version/sepulworld/deadman-check.svg)](http://microbadger.com/images/sepulworld/deadman-check "Get your own version badge on microbadger.com")
 
 A monitoring companion for Nomad periodic [jobs](https://www.nomadproject.io/docs/job-specification/periodic.html) that alerts if periodic isn't
-running at the expected interval. 
+running at the expected interval.
 
-The deadman-check has 2 modes: 
+The deadman-check has 2 modes:
 
-1. Run with the Nomad periodic job as an additional [task](https://www.nomadproject.io/docs/job-specification/task.html) to update a key in Consul with current EPOCH time. 
+1. Run with the Nomad periodic job as an additional [task](https://www.nomadproject.io/docs/job-specification/task.html) to update a key in Consul with current EPOCH time.
 
 2. Run as a separate process that will monitor the Consul key's EPOCH
 time value and alert if that value fails to meet a time 'freshness' threshold that
 is expected for that job.
 
 
-### Requirements 
+### Requirements
 * [Consul](https://www.consul.io/) instance
 * Alerting requires a SLACK_API_TOKEN environment variable to be set (use [Slack Bot integration](https://my.slack.com/services/new/bot))
 
