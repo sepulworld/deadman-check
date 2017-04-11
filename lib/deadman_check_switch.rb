@@ -34,8 +34,10 @@ module DeadmanCheck
 
     def slack_alert(alert_to, key, epoch_diff)
       client = Slack::Web::Client.new
+      datacenters = Diplomat::Datacenter.get()
       client.chat_postMessage(channel: "\##{alert_to}", text: "Alert: Deadman Switch
-        Triggered for #{key}, with #{epoch_diff} seconds since last run",
+        Triggered for #{key}, with #{epoch_diff} seconds since last run
+        Consul datacenters: #{datacenters}",
         username: 'deadman')
     end
 
