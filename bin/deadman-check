@@ -17,15 +17,25 @@ command :switch_monitor do |c|
     %q{deadman-check switch_monitor --host 127.0.0.1 --port 8500 --key deadman/myservice --freshness 500 --alert-to ops@mycomany.tld --alert-from ops-no-reply-email@mycomany.tld}
   c.option '--host HOST', String, 'IP address or hostname of Consul system'
   c.option '--port PORT', String, 'port Consul is listening on'
-  c.option '--key-path KEY', String, 'Consul key path to monitor, performs a recursive key lookup at given path, defaults to deadman/'
+  c.option '--key-path KEYPATH', String, 'Consul key path to monitor, performs a recursive key lookup at given path, defaults to deadman/'
+  c.option '--key KEY', String, 'Consul key to monitor, provide this or --key-path if you have multiple keys in a given path.'
   c.option '--alert-to SLACKROOM', String, 'Slackroom to alert to'
   c.option '--daemon', 'Run as a daemon, otherwise will run check just once'
   c.option '--daemon-sleep SECONDS', String, 'Set the number of seconds to sleep in between switch checks, default 300'
   c.action do |args, options|
     options.default :daemon_sleep => 300
-    options.default :key_path => 'deadman/'
+    if options.key_path && options.key
+      abort("Specify --key-path or --key, don't specify both")
+    end
+    if options.key
+      target = options.key
+      recurse = false
+    else
+      target = options.key_path
+      recurse = true
+    end
     switch_monitor = DeadmanCheck::SwitchMonitor.new(options.host, options.port,
-      options.key_path, options.alert_to, options.daemon_sleep)
+      target, options.alert_to, recurse, options.daemon_sleep)
     if options.daemon
       Daemons.run(switch_monitor.run_check_daemon)
     else
