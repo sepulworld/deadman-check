@@ -49,12 +49,12 @@ end
 command :key_set do |c|
   c.syntax = 'deadman-check key_set [options]'
   c.summary = 'Update a given Consul key with current EPOCH'
-  c.description = 'key_set will set a consul key that contains the current epoch and time frequency that job should be running at, example key {"epoch":1493010437,"frequency":"300"}'
+  c.description = 'key_set will set a consul key that contains the current epoch and time frequency for which the job being monitored runs at, example key {"epoch":1493010437,"frequency":"300"}'
   c.example %q{Update a Consul key deadman/myservice, with current EPOCH time},
     %q{deadman-check key_set --host 127.0.0.1 --port 8500 --key deadman/myservice --frequency 300}
   c.option '--host HOST', String, 'IP address or hostname of Consul system'
   c.option '--port PORT', String, 'port Consul is listening on'
-  c.option '--key KEY', String, 'Consul key to report EPOCH time to'
+  c.option '--key KEY', String, 'Consul key to report EPOCH time and frequency for service'
   c.option '--frequency FREQUENCY', String, 'Frequency at which this key should be updated in seconds'
   c.action do |args, options|
     key_set = DeadmanCheck::KeySet.new(options.host, options.port, options.key,

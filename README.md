@@ -277,7 +277,7 @@ $ deadman-check key_set -h
         port Consul is listening on
 
     --key KEY
-        Consul key to report EPOCH time to
+        Consul key to report EPOCH time and frequency for service
 
     --frequency FREQUENCY
         Frequency at which this key should be updated in seconds
