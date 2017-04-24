@@ -323,7 +323,7 @@ $ deadman-check switch_monitor -h
         Consul key to monitor, provide this or --key-path if you have multiple keys in a given path.
 
     --alert-to SLACKROOM
-        Slackroom to send alert
+        Slackroom to send alert, don't include the # tag in name
 
     --daemon
         Run as a daemon, otherwise will run check just once
