@@ -7,19 +7,21 @@ require 'daemons'
 
 program :name, 'deadman-check'
 program :version, DeadmanCheck::VERSION
-program :description, %q{Monitor a Consul key that contains an EPOCH time entry. Send email if EPOCH age hits given threshold}
+program :description, %q{Monitor a Consul key or key-path that contains an EPOCH time entry and frequency. Send Slack message if EPOCH age is greater than given frequency}
 
 command :switch_monitor do |c|
   c.syntax = 'deadman-check switch_monitor [options]'
   c.summary = 'Target a Consul key to monitor'
-  c.description = ''
-  c.example %q{Target a Consul key deadman/myservice, and this key has an EPOCH value to check looking to alert on 500 second or greater freshness},
-    %q{deadman-check switch_monitor --host 127.0.0.1 --port 8500 --key deadman/myservice --freshness 500 --alert-to ops@mycomany.tld --alert-from ops-no-reply-email@mycomany.tld}
+  c.description = 'switch_monitor will monitor either a given key which contains a services last epoch checkin and frequency, or a series of services that set keys under a given key-path in Consul'
+  c.example %q{Target a Consul key deadman/myservice, and this key has an EPOCH value to check looking to alert},
+    %q{deadman-check switch_monitor --host 127.0.0.1 --port 8500 --key deadman/myservice --alert-to monitoroom}
+  c.example %q{Target a Consul key path deadman/, which contains 2 or more service keys to monitor, i.e. deadman/myservice1, deadman/myservice2, deadmman/myservice3 all fall under the path deadman/},
+    %q{deadman-check switch_monitor --host 127.0.0.1 --port 8500 --key-path deadman/ --alert-to monitoroom}
   c.option '--host HOST', String, 'IP address or hostname of Consul system'
   c.option '--port PORT', String, 'port Consul is listening on'
-  c.option '--key-path KEYPATH', String, 'Consul key path to monitor, performs a recursive key lookup at given path, defaults to deadman/'
+  c.option '--key-path KEYPATH', String, 'Consul key path to monitor, performs a recursive key lookup at given path.'
   c.option '--key KEY', String, 'Consul key to monitor, provide this or --key-path if you have multiple keys in a given path.'
-  c.option '--alert-to SLACKROOM', String, 'Slackroom to alert to'
+  c.option '--alert-to SLACKROOM', String, 'Slackroom to send alert'
   c.option '--daemon', 'Run as a daemon, otherwise will run check just once'
   c.option '--daemon-sleep SECONDS', String, 'Set the number of seconds to sleep in between switch checks, default 300'
   c.action do |args, options|
@@ -47,9 +49,9 @@ end
 command :key_set do |c|
   c.syntax = 'deadman-check key_set [options]'
   c.summary = 'Update a given Consul key with current EPOCH'
-  c.description = ''
+  c.description = 'key_set will set a consul key that contains the current epoch and time frequency that job should be running at, example key {"epoch":1493010437,"frequency":"300"}'
   c.example %q{Update a Consul key deadman/myservice, with current EPOCH time},
-    %q{deadman-check key_set --host 127.0.0.1 --port 8500 --key deadman/myservice}
+    %q{deadman-check key_set --host 127.0.0.1 --port 8500 --key deadman/myservice --frequency 300}
   c.option '--host HOST', String, 'IP address or hostname of Consul system'
   c.option '--port PORT', String, 'port Consul is listening on'
   c.option '--key KEY', String, 'Consul key to report EPOCH time to'
