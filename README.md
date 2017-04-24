@@ -89,7 +89,9 @@ job "SilverBulletPeriodic" {
           "--port",
           "8500",
           "--key",
-          "deadman/SilverBulletPeriodicProcess"]
+          "deadman/SilverBulletPeriodicProcess",
+          "--frequency",
+          "700"]
       }
       resources {
         cpu = 100
@@ -99,8 +101,7 @@ job "SilverBulletPeriodic" {
   }
 }
 ```
-
-<img width="1215" alt="screen shot 2017-03-26 at 3 28 50 pm" src="https://cloud.githubusercontent.com/assets/538171/24335809/276147ec-1239-11e7-83d8-0fca95bebdc2.png">
+<img width="1215" alt="screen shot 2017-04-23 at 11 14 36 pm" src="https://cloud.githubusercontent.com/assets/538171/25324439/b65541d6-287a-11e7-9b6d-4e1c9565eed2.png">
 
 Now the key, deadman/SilverBulletPeriodicProcess, at 10.0.0.1 will be updated with
 the EPOCH time for each SilverBulletPeriodic job run. If the job hangs or fails to run
@@ -126,8 +127,6 @@ job "DeadmanMonitoring" {
           "8500",
           "--key",
           "deadman/SilverBulletPeriodicProcess",
-          "--freshness",
-          "800",
           "--alert-to",
           "slackroom",
           "--daemon",
@@ -146,9 +145,51 @@ job "DeadmanMonitoring" {
 }
 ```
 
-Monitor a Consul key that contains an EPOCH time entry. Send a Slack message if EPOCH age hits given threshold
+Monitor a Consul key that contains an EPOCH time entry. Send a Slack message if EPOCH age hits given frequency threshold
 
 <img width="752" alt="screen shot 2017-03-26 at 3 29 28 pm" src="https://cloud.githubusercontent.com/assets/538171/24335811/2e57eee8-1239-11e7-9fff-c8a10d956f2e.png">
+
+If you have multiple periodic jobs that need to be monitored then use the ```--key-path``` argument instead of ```--key```. Be sure to ```key_set``` all under the same Consul key path.
+
+<img width="658" alt="screen shot 2017-04-23 at 11 17 29 pm" src="https://cloud.githubusercontent.com/assets/538171/25324510/14d6e7f0-287b-11e7-9c0d-733d69e1cc94.png">
+
+To monitor the above you would just use the ```--key-path``` argument instead of ```--key```
+
+```hcl
+job "DeadmanMonitoring" {
+  datacenters = ["dc1"]
+  type = "service"
+
+  group "monitor" {
+    task "DeadmanMonitorSilverBulletPeriodicProcesses" {
+      driver = "docker"
+      config {
+        image    = "sepulworld/deadman-check"
+        command  = "switch_monitor"
+        args     = [
+          "--host",
+          "10.0.0.1",
+          "--port",
+          "8500",
+          "--key-path",
+          "deadman/",
+          "--alert-to",
+          "slackroom",
+          "--daemon",
+          "--daemon-sleep",
+          "900"]
+      }
+      resources {
+        cpu = 100
+        memory = 256
+      }
+      env {
+        SLACK_API_TOKEN = "YourSlackApiToken"
+      }
+    }
+  }
+}
+```
 
 # Non-Nomad Use:
 
@@ -185,8 +226,7 @@ $ deadman-check -h
 
   DESCRIPTION:
 
-    Monitor a Consul key that contains an EPOCH time entry.
-      Send a Slack message if EPOCH age hits given threshold
+    Monitor a Consul key or key-path that contains an EPOCH time entry and frequency. Send Slack message if EPOCH age is greater than given frequency
 
   COMMANDS:
 
@@ -221,12 +261,12 @@ $ deadman-check key_set -h
 
   DESCRIPTION:
 
-
+    key_set will set a consul key that contains the current epoch and time frequency that job should be running at, example key {"epoch":1493010437,"frequency":"300"}
 
   EXAMPLES:
 
     # Update a Consul key deadman/myservice, with current EPOCH time
-    deadman-check key_set --host 127.0.0.1 --port 8500 --key deadman/myservice
+    deadman-check key_set --host 127.0.0.1 --port 8500 --key deadman/myservice --frequency 300
 
   OPTIONS:
 
@@ -237,7 +277,10 @@ $ deadman-check key_set -h
         port Consul is listening on
 
     --key KEY
-        Consul key to monitor
+        Consul key to report EPOCH time and frequency for service
+
+    --frequency FREQUENCY
+        Frequency at which this key should be updated in seconds
 ```
 
 ### Usage for switch_monitor command
@@ -255,18 +298,15 @@ $ deadman-check switch_monitor -h
 
   DESCRIPTION:
 
-
+    switch_monitor will monitor either a given key which contains a services last epoch checkin and frequency, or a series of services that set keys under a given key-path in Consul
 
   EXAMPLES:
 
-    # Target a Consul key deadman/myservice, and this key has an EPOCH
-     value to check looking to alert on 500 second or greater freshness
-    deadman-check switch_monitor \
-      --host 127.0.0.1 \
-      --port 8500 \
-      --key deadman/myservice \
-      --freshness 500 \
-      --alert-to slackroom
+    # Target a Consul key deadman/myservice, and this key has an EPOCH value to check looking to alert
+    deadman-check switch_monitor --host 127.0.0.1 --port 8500 --key deadman/myservice --alert-to monitoroom
+
+    # Target a Consul key path deadman/, which contains 2 or more service keys to monitor, i.e. deadman/myservice1, deadman/myservice2, deadmman/myservice3 all fall under the path deadman/
+    deadman-check switch_monitor --host 127.0.0.1 --port 8500 --key-path deadman/ --alert-to monitoroom
 
   OPTIONS:
 
@@ -276,15 +316,14 @@ $ deadman-check switch_monitor -h
     --port PORT
         port Consul is listening on
 
-    --key KEY
-        Consul key to monitor
+    --key-path KEYPATH
+        Consul key path to monitor, performs a recursive key lookup at given path.
 
-    --freshness SECONDS
-        The value in seconds to alert on when the recorded
-            EPOCH value exceeds current EPOCH
+    --key KEY
+        Consul key to monitor, provide this or --key-path if you have multiple keys in a given path.
 
     --alert-to SLACKROOM
-        Slackroom to alert to, don't include the # tag in name
+        Slackroom to send alert, don't include the # tag in name
 
     --daemon
         Run as a daemon, otherwise will run check just once
