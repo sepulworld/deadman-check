@@ -11,7 +11,7 @@ class DeadmanCheckTest < Minitest::Test
         \"CreateIndex\": \"9\",
         \"ModifyIndex\": \"465\"
     }
-]"
+  ]"
 
   @@recursive_key_response = "[
     {
