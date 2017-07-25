@@ -35,7 +35,7 @@ module DeadmanCheck
 
     def run_check_daemon
       loop do
-        run_check_once(target, recurse)
+        run_check_once
         sleep(@daemon_sleep)
       end
     end

@@ -1,20 +1,20 @@
-FROM ruby:2.4
+FROM alpine:3.6
 MAINTAINER Zane Williamson <zane.williamson@gmail.com>
 
-# Install apt packages
-ARG DEBIAN_FRONTEND=noninteractive
-RUN apt-get update -qq && \
-    apt-get install -y -qq \
-        less \
-        locales && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-
-# Configure locale
-ARG LOCALE="C.UTF-8"
-RUN locale-gen "$LOCALE" && \
-    dpkg-reconfigure locales
-ENV LANG="$LOCALE" LC_ALL="$LOCALE"
+# Install apk packages
+RUN apk update && \
+    apk add build-base \
+    git \
+    openssl \
+    ruby \
+    ruby-dev \
+    ruby-bundler \
+    ruby-rdoc \
+    ruby-bigdecimal \
+    ruby-irb \
+    ruby-json \
+    ruby-io-console \
+    --no-cache
 
 ADD . /app/
 ADD lib /app/lib
