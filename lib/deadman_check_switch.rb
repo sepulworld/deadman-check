@@ -3,23 +3,32 @@ require 'deadman_check_global'
 require 'diplomat'
 require 'slack-ruby-client'
 require 'json'
+require 'aws-sdk'
 
 module DeadmanCheck
   # Switch class
   class SwitchMonitor
-    attr_accessor :host, :port, :target, :alert_to, :recurse, :daemon_sleep
+    attr_accessor :host, :port, :target, :alert_to_slack,
+      :alert_to_sns, :alert_to_sns_region, :recurse, :daemon_sleep
 
-    def initialize(host, port, target, alert_to, recurse, daemon_sleep)
+    def initialize(host, port, target, alert_to_slack, alert_to_sns,
+                  alert_to_sns_region, recurse, daemon_sleep)
       @host = host
       @port = port
       @target = target
-      @alert_to = alert_to
+      @alert_to_slack = alert_to_slack
+      @alert_to_sns = alert_to_sns
+      @alert_to_sns_region = alert_to_sns_region
       @recurse = recurse
       @daemon_sleep = daemon_sleep.to_i
     end
 
-    Slack.configure do |config|
-      config.token = ENV['SLACK_API_TOKEN']
+    unless alert_to_slack.nil?
+      DeadmanCheck::DeadmanCheckSlackAuth.new
+    end
+
+    unless alert_to_sns.nil?
+      sns = DeadmanCheck::DeadmanCheckSnsAuth.new(@alert_to_sns_region)
     end
 
     def run_check_once
@@ -62,7 +71,10 @@ module DeadmanCheck
 
       def alert_if_epoch_greater_than_frequency(epoch_diff, target, frequency)
         if epoch_diff > frequency
-          slack_alert(@alert_to, target, epoch_diff)
+          slack_alert(
+            @alert_to_slack, target, epoch_diff) unless alert_to_slack.nil?
+          sns_alert(
+            @alert_to_sns, target, epoch_diff) unless alert_to_sns.nil?
         end
       end
 
@@ -85,11 +97,25 @@ module DeadmanCheck
         end
       end
 
-      def slack_alert(alert_to, target, epoch_diff)
+      def slack_alert(alert_to_slack, target, epoch_diff)
         client = Slack::Web::Client.new
-        client.chat_postMessage(channel: "\##{alert_to}", text: "Alert: Deadman Switch
+        client.chat_postMessage(channel: "\##{alert_to_slack}",
+          text: "Alert: Deadman Switch
           Triggered for #{target}, with #{epoch_diff} seconds since last run",
           username: 'deadman')
+      end
+
+      def sns_alert(alert_to_sns, target, epoch_diff)
+        sns.publish(
+          target_arn: @alert_to_sns,
+          message_structure: 'json',
+          message: {
+            default => "Alert: Deadman Switch triggered for #{target}",
+            email => "Alert: Deadman Switch triggered for #{target}, with
+            #{epoch_diff} seconds since last run",
+            sms => "Alert: Deadman Switch for #{target}"
+          }.to_json
+        )
       end
   end
 end
