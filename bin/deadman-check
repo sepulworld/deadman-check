@@ -14,18 +14,26 @@ command :switch_monitor do |c|
   c.summary = 'Target a Consul key to monitor'
   c.description = 'switch_monitor will monitor either a given key which contains a services last epoch checkin and frequency, or a series of services that set keys under a given key-path in Consul'
   c.example %q{Target a Consul key deadman/myservice, and this key has an EPOCH value to check looking to alert},
-    %q{deadman-check switch_monitor --host 127.0.0.1 --port 8500 --key deadman/myservice --alert-to monitoroom}
+    %q{deadman-check switch_monitor --host 127.0.0.1 --port 8500 --key deadman/myservice --alert-to-slack my-slack-monitor-channel}
   c.example %q{Target a Consul key path deadman/, which contains 2 or more service keys to monitor, i.e. deadman/myservice1, deadman/myservice2, deadmman/myservice3 all fall under the path deadman/},
-    %q{deadman-check switch_monitor --host 127.0.0.1 --port 8500 --key-path deadman/ --alert-to monitoroom}
+    %q{deadman-check switch_monitor --host 127.0.0.1 --port 8500 --key-path deadman/ --alert-to-slack my-slack-monitor-channel}
+  c.example %q{Target a Consul key path deadman/, alert to Amazon SNS, i.e. deadman/myservice1, deadman/myservice2, deadmman/myservice3 all fall under the path deadman/},
+    %q{deadman-check switch_monitor --host 127.0.0.1 --port 8500 --key-path deadman/ --alert-to-sns arn:aws:sns:*:123456789012:my_corporate_topic}
   c.option '--host HOST', String, 'IP address or hostname of Consul system'
   c.option '--port PORT', String, 'port Consul is listening on'
   c.option '--key-path KEYPATH', String, 'Consul key path to monitor, performs a recursive key lookup at given path.'
   c.option '--key KEY', String, 'Consul key to monitor, provide this or --key-path if you have multiple keys in a given path.'
-  c.option '--alert-to SLACKROOM', String, 'Slackroom to send alert, don\'t include the # tag in name'
+  c.option '--alert-to-slack SLACKCHANNEL', String, 'Slack channel to send alert, don\'t include the # tag in name'
+  c.option '--alert-to-sns SNSARN', String, 'Amazon Web Services SNS arn to send alert, example arn arn:aws:sns:*:123456789012:my_corporate_topic'
+  c.option '--alert-to-sns-region AWSREGION', String, 'Amazon Web Services region the SNS topic is in, defaults to us-west-2'
   c.option '--daemon', 'Run as a daemon, otherwise will run check just once'
   c.option '--daemon-sleep SECONDS', String, 'Set the number of seconds to sleep in between switch checks, default 300'
   c.action do |args, options|
-    options.default :daemon_sleep => 300
+    options.default :daemon_sleep => 300,
+                    :alert_to_sns_region => 'us-west-2',
+                    :alert_to_sns => nil,
+                    :alert_to_slack => nil
+
     if options.key_path && options.key
       abort("Specify --key-path or --key, don't specify both")
     end
@@ -36,8 +44,10 @@ command :switch_monitor do |c|
       target = options.key_path
       recurse = true
     end
-    switch_monitor = DeadmanCheck::SwitchMonitor.new(options.host, options.port,
-      target, options.alert_to, recurse, options.daemon_sleep)
+    switch_monitor = DeadmanCheck::SwitchMonitor.new(
+      options.host, options.port,
+      target, options.alert_to_slack, options.alert_to_sns,
+      options.alert_to_sns_region, recurse, options.daemon_sleep)
     if options.daemon
       Daemons.run(switch_monitor.run_check_daemon)
     else
@@ -57,6 +67,12 @@ command :key_set do |c|
   c.option '--key KEY', String, 'Consul key to report EPOCH time and frequency for service'
   c.option '--frequency FREQUENCY', String, 'Frequency at which this key should be updated in seconds'
   c.action do |args, options|
+    if options.frequency.nil?
+      abort("Specify --frequency at which this key should be updated by the service")
+    end
+    if options.key.nil?
+      abort("Must specify a --key")
+    end
     key_set = DeadmanCheck::KeySet.new(options.host, options.port, options.key,
       options.frequency)
     key_set.run_consul_key_update
