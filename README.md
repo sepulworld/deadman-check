@@ -197,6 +197,8 @@ job "DeadmanMonitoring" {
 }
 ```
 
+<img width="903" alt="screen shot 2017-08-04 at 11 39 12 am" src="https://user-images.githubusercontent.com/538171/28982223-e576743c-7909-11e7-8e65-ebb0b4a76762.png">
+
 # Non-Nomad Use:
 
 ## Local system installation
