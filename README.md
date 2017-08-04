@@ -22,10 +22,10 @@ is expected for that job.
 
 ### Alerting Options
 * Slack alerting requires a SLACK_API_TOKEN environment variable to be set (use [Slack Bot integration](https://my.slack.com/services/new/bot)) (optional)
-* (AWS SNS)[https://aws.amazon.com/documentation/sns/] alerting requires appropreiate AWS IAM access to target SNS topic
+* [AWS SNS](https://aws.amazon.com/documentation/sns/) alerting requires appropreiate AWS IAM access to target SNS topic
   - ENV['AWS_ACCESS_KEY_ID'] and ENV['AWS_SECRET_ACCESS_KEY']
   - The shared credentials ini file at ~/.aws/credentials (more information)
-  - From an (instance profile)[https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-ec2_instance-profiles.html] when running on EC2
+  - From an [instance profile](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-ec2_instance-profiles.html) when running on EC2
 
 ## Example Usage
 
