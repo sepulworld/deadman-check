@@ -21,11 +21,8 @@ is expected for that job.
 * [Consul](https://www.consul.io/) instance or cluster to report to
 
 ### Alerting Options
-* Slack alerting requires a SLACK_API_TOKEN environment variable to be set (use [Slack Bot integration](https://my.slack.com/services/new/bot)) (optional)
-* [AWS SNS](https://aws.amazon.com/documentation/sns/) alerting requires appropreiate AWS IAM access to target SNS topic
-  - ENV['AWS_ACCESS_KEY_ID'] and ENV['AWS_SECRET_ACCESS_KEY']
-  - The shared credentials ini file at ~/.aws/credentials (more information)
-  - From an [instance profile](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-ec2_instance-profiles.html) when running on EC2
+* [Slack](https://slack.com/) 
+* [AWS SNS](https://aws.amazon.com/documentation/sns/)
 
 ## Example Usage
 
@@ -224,6 +221,13 @@ $ alias deadman-check='\
 (Depending on how your system is set up, you might have to add sudo in front of the above docker commands or add your user to the docker group).
 
 If you don't do the docker pull, the first time you run deadman-check, the docker run command will automatically pull the sepulworld/deadman-check image on the Docker Hub. Subsequent runs will use a locally cached copy of the image and will not have to download anything.
+
+### Alerting Setup
+* Slack alerting requires a SLACK_API_TOKEN environment variable to be set (use [Slack Bot integration](https://my.slack.com/services/new/bot)) (optional)
+* [AWS SNS](https://aws.amazon.com/documentation/sns/) alerting requires appropreiate AWS IAM access to target SNS topic. One of the following can be used for authentication. IAM policy access to publish to the topic will be required
+  - ENV['AWS_ACCESS_KEY_ID'] and ENV['AWS_SECRET_ACCESS_KEY']
+  - The shared credentials ini file at ~/.aws/credentials (more information)
+  - From an [instance profile](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-ec2_instance-profiles.html) when running on EC2
 
 ## Usage via Local System Install
 
