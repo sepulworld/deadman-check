@@ -18,8 +18,14 @@ is expected for that job.
 
 
 ### Requirements
-* [Consul](https://www.consul.io/) instance
-* Alerting requires a SLACK_API_TOKEN environment variable to be set (use [Slack Bot integration](https://my.slack.com/services/new/bot))
+* [Consul](https://www.consul.io/) instance or cluster to report to
+
+### Alerting Options
+* Slack alerting requires a SLACK_API_TOKEN environment variable to be set (use [Slack Bot integration](https://my.slack.com/services/new/bot)) (optional)
+* (AWS SNS)[https://aws.amazon.com/documentation/sns/] alerting requires appropreiate AWS IAM access to target SNS topic
+  - ENV['AWS_ACCESS_KEY_ID'] and ENV['AWS_SECRET_ACCESS_KEY']
+  - The shared credentials ini file at ~/.aws/credentials (more information)
+  - From an (instance profile)[https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-ec2_instance-profiles.html] when running on EC2
 
 ## Example Usage
 
@@ -127,7 +133,7 @@ job "DeadmanMonitoring" {
           "8500",
           "--key",
           "deadman/SilverBulletPeriodicProcess",
-          "--alert-to",
+          "--alert-to-slack",
           "slackroom",
           "--daemon",
           "--daemon-sleep",
@@ -153,7 +159,7 @@ If you have multiple periodic jobs that need to be monitored then use the ```--k
 
 <img width="658" alt="screen shot 2017-04-23 at 11 17 29 pm" src="https://cloud.githubusercontent.com/assets/538171/25324510/14d6e7f0-287b-11e7-9c0d-733d69e1cc94.png">
 
-To monitor the above you would just use the ```--key-path``` argument instead of ```--key```
+To monitor the above you would just use the ```--key-path``` argument instead of ```--key``` and AWS SNS for alerting endpoint
 
 ```hcl
 job "DeadmanMonitoring" {
@@ -173,8 +179,10 @@ job "DeadmanMonitoring" {
           "8500",
           "--key-path",
           "deadman/",
-          "--alert-to",
-          "slackroom",
+          "--alert-to-sns",
+          "arn:aws:sns:us-east-1:123412345678:deadman-check",
+          "--alert-to-sns-region",
+          "us-east-1",
           "--daemon",
           "--daemon-sleep",
           "900"]
@@ -184,7 +192,8 @@ job "DeadmanMonitoring" {
         memory = 256
       }
       env {
-        SLACK_API_TOKEN = "YourSlackApiToken"
+        AWS_ACCESS_KEY_ID = "YourAWSKEY"
+        AWS_SECRET_ACCESS_KEY = "YourAWSSecret"
       }
     }
   }
@@ -298,15 +307,21 @@ $ deadman-check switch_monitor -h
 
   DESCRIPTION:
 
-    switch_monitor will monitor either a given key which contains a services last epoch checkin and frequency, or a series of services that set keys under a given key-path in Consul
+    switch_monitor will monitor either a given key which contains a services last epoch checkin and frequency, or a series of services that set keys
+under a given key-path in Consul
 
   EXAMPLES:
 
     # Target a Consul key deadman/myservice, and this key has an EPOCH value to check looking to alert
-    deadman-check switch_monitor --host 127.0.0.1 --port 8500 --key deadman/myservice --alert-to monitoroom
+    deadman-check switch_monitor --host 127.0.0.1 --port 8500 --key deadman/myservice --alert-to-slack my-slack-monitor-channel
 
-    # Target a Consul key path deadman/, which contains 2 or more service keys to monitor, i.e. deadman/myservice1, deadman/myservice2, deadmman/myservice3 all fall under the path deadman/
-    deadman-check switch_monitor --host 127.0.0.1 --port 8500 --key-path deadman/ --alert-to monitoroom
+    # Target a Consul key path deadman/, which contains 2 or more service keys to monitor, i.e. deadman/myservice1, deadman/myservice2,
+deadmman/myservice3 all fall under the path deadman/
+    deadman-check switch_monitor --host 127.0.0.1 --port 8500 --key-path deadman/ --alert-to-slack my-slack-monitor-channel
+
+    # Target a Consul key path deadman/, alert to Amazon SNS, i.e. deadman/myservice1, deadman/myservice2, deadmman/myservice3 all fall under the path
+deadman/
+    deadman-check switch_monitor --host 127.0.0.1 --port 8500 --key-path deadman/ --alert-to-sns arn:aws:sns:*:123456789012:my_corporate_topic
 
   OPTIONS:
 
@@ -322,8 +337,14 @@ $ deadman-check switch_monitor -h
     --key KEY
         Consul key to monitor, provide this or --key-path if you have multiple keys in a given path.
 
-    --alert-to SLACKROOM
-        Slackroom to send alert, don't include the # tag in name
+    --alert-to-slack SLACKCHANNEL
+        Slack channel to send alert, don't include the # tag in name
+
+    --alert-to-sns SNSARN
+        Amazon Web Services SNS arn to send alert, example arn arn:aws:sns:*:123456789012:my_corporate_topic
+
+    --alert-to-sns-region AWSREGION
+        Amazon Web Services region the SNS topic is in, defaults to us-west-2
 
     --daemon
         Run as a daemon, otherwise will run check just once
