@@ -65,30 +65,6 @@ module DeadmanCheck
         return recorded_epochs
       end
 
-      def parse_recorded_epoch(recorded_epochs)
-        # {"epoch":1493000501,"frequency":"300"}
-        value_json = JSON.parse(recorded_epochs[0][:value])
-        frequency = value_json["frequency"]
-        epoch = value_json["epoch"]
-        return epoch, frequency
-      end
-
-      def alert_if_epoch_greater_than_frequency(epoch_diff, target, frequency)
-        if epoch_diff > frequency
-          slack_alert(
-            @alert_to_slack, target, epoch_diff) unless @alert_to_slack.nil?
-          sns_alert(
-            @alert_to_sns, target, epoch_diff) unless @alert_to_sns.nil?
-        end
-      end
-
-      def check_recorded_epoch(parse_recorded_epoch, current_epoch)
-        recorded_epoch = parse_recorded_epoch[0].to_i
-        frequency = parse_recorded_epoch[1].to_i
-        epoch_diff = diff_epoch(current_epoch, recorded_epoch)
-        alert_if_epoch_greater_than_frequency(epoch_diff, @target, frequency)
-      end
-
       def check_recursive_recorded_epochs(recorded_epochs, current_epoch)
         recorded_epochs.each do |recorded_service|
           value_json = JSON.parse(recorded_service[:value])
@@ -98,6 +74,30 @@ module DeadmanCheck
           alert_if_epoch_greater_than_frequency(epoch_diff,
                                                 recorded_service[:key],
                                                 frequency)
+        end
+      end
+
+      def parse_recorded_epoch(recorded_epochs)
+        # {"epoch":1493000501,"frequency":"300"}
+        value_json = JSON.parse(recorded_epochs[0][:value])
+        frequency = value_json["frequency"]
+        epoch = value_json["epoch"]
+        return epoch, frequency
+      end
+
+      def check_recorded_epoch(parse_recorded_epoch, current_epoch)
+        recorded_epoch = parse_recorded_epoch[0].to_i
+        frequency = parse_recorded_epoch[1].to_i
+        epoch_diff = diff_epoch(current_epoch, recorded_epoch)
+        alert_if_epoch_greater_than_frequency(epoch_diff, @target, frequency)
+      end
+
+      def alert_if_epoch_greater_than_frequency(epoch_diff, target, frequency)
+        if epoch_diff > frequency
+          slack_alert(
+            @alert_to_slack, target, epoch_diff) unless @alert_to_slack.nil?
+          sns_alert(
+            @alert_to_sns, target, epoch_diff) unless @alert_to_sns.nil?
         end
       end
 
