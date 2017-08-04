@@ -76,9 +76,9 @@ module DeadmanCheck
       def alert_if_epoch_greater_than_frequency(epoch_diff, target, frequency)
         if epoch_diff > frequency
           slack_alert(
-            @alert_to_slack, target, epoch_diff) unless alert_to_slack.nil?
+            @alert_to_slack, target, epoch_diff) unless @alert_to_slack.nil?
           sns_alert(
-            @alert_to_sns, target, epoch_diff) unless alert_to_sns.nil?
+            @alert_to_sns, target, epoch_diff) unless @alert_to_sns.nil?
         end
       end
 
