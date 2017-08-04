@@ -9,10 +9,7 @@ module DeadmanCheck
   # Switch class
   class SwitchMonitor
     attr_accessor :host, :port, :target, :alert_to_slack,
-      :alert_to_sns, :alert_to_sns_region, :recurse, :daemon_sleep
-
-    @alert_to_slack = nil
-    @alert_to_sns = nil
+    :alert_to_sns, :alert_to_sns_region, :recurse, :daemon_sleep
 
     def initialize(host, port, target, alert_to_slack, alert_to_sns,
                   alert_to_sns_region, recurse, daemon_sleep)
@@ -24,18 +21,18 @@ module DeadmanCheck
       @alert_to_sns_region = alert_to_sns_region
       @recurse = recurse
       @daemon_sleep = daemon_sleep.to_i
-    end
 
-    unless @alert_to_slack.nil?
-      Slack.configure do |config|
-        config.token = ENV['SLACK_API_TOKEN']
+      unless @alert_to_slack.nil?
+        Slack.configure do |config|
+          config.token = ENV['SLACK_API_TOKEN']
+        end
       end
-    end
 
-    unless @alert_to_sns.nil?
-      @sns = Aws::SNS::Client.new(
-        region: @alert_to_sns_region
-        )
+      unless @alert_to_sns.nil?
+        @sns = Aws::SNS::Client.new(
+          region: @alert_to_sns_region
+          )
+      end
     end
 
     def run_check_once
@@ -117,10 +114,10 @@ module DeadmanCheck
           target_arn: @alert_to_sns,
           message_structure: 'json',
           message: {
-            default => "Alert: Deadman Switch triggered for #{target}",
-            email => "Alert: Deadman Switch triggered for #{target}, with
+            :default => "Alert: Deadman Switch triggered for #{target}",
+            :email => "Alert: Deadman Switch triggered for #{target}, with
             #{epoch_diff} seconds since last run",
-            sms => "Alert: Deadman Switch for #{target}"
+            :sms => "Alert: Deadman Switch for #{target}"
           }.to_json
         )
       end

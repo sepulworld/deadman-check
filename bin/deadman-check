@@ -33,7 +33,7 @@ command :switch_monitor do |c|
                     :alert_to_sns_region => 'us-west-2',
                     :alert_to_sns => nil,
                     :alert_to_slack => nil
-                    
+
     if options.key_path && options.key
       abort("Specify --key-path or --key, don't specify both")
     end
