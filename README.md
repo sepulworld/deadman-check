@@ -24,7 +24,7 @@ is expected for that job.
 * [Slack](https://slack.com/)
 <img width="752" alt="screen shot 2017-03-26 at 3 29 28 pm" src="https://cloud.githubusercontent.com/assets/538171/24335811/2e57eee8-1239-11e7-9fff-c8a10d956f2e.png">
 
-* [AWS SNS](https://aws.amazon.com/documentation/sns/)
+* [AWS SNS](https://aws.amazon.com/documentation/sns/) - Great for broadcasting alerts and/or triggering [AWS Lambda functions](https://docs.aws.amazon.com/sns/latest/dg/sns-lambda.html) to run code
 <img width="903" alt="screen shot 2017-08-04 at 11 39 12 am" src="https://user-images.githubusercontent.com/538171/28982223-e576743c-7909-11e7-8e65-ebb0b4a76762.png">
 
 ## Example Usage
