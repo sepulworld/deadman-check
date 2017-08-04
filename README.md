@@ -21,8 +21,11 @@ is expected for that job.
 * [Consul](https://www.consul.io/) instance or cluster to report to
 
 ### Alerting Options
-* [Slack](https://slack.com/) 
+* [Slack](https://slack.com/)
+<img width="752" alt="screen shot 2017-03-26 at 3 29 28 pm" src="https://cloud.githubusercontent.com/assets/538171/24335811/2e57eee8-1239-11e7-9fff-c8a10d956f2e.png">
+
 * [AWS SNS](https://aws.amazon.com/documentation/sns/)
+<img width="903" alt="screen shot 2017-08-04 at 11 39 12 am" src="https://user-images.githubusercontent.com/538171/28982223-e576743c-7909-11e7-8e65-ebb0b4a76762.png">
 
 ## Example Usage
 
@@ -197,7 +200,7 @@ job "DeadmanMonitoring" {
 }
 ```
 
-<img width="903" alt="screen shot 2017-08-04 at 11 39 12 am" src="https://user-images.githubusercontent.com/538171/28982223-e576743c-7909-11e7-8e65-ebb0b4a76762.png">
+
 
 # Non-Nomad Use:
 
