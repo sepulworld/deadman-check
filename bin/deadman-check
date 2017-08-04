@@ -29,7 +29,11 @@ command :switch_monitor do |c|
   c.option '--daemon', 'Run as a daemon, otherwise will run check just once'
   c.option '--daemon-sleep SECONDS', String, 'Set the number of seconds to sleep in between switch checks, default 300'
   c.action do |args, options|
-    options.default :daemon_sleep => 300, :alert_to_sns_region => 'us-west-2'
+    options.default :daemon_sleep => 300,
+                    :alert_to_sns_region => 'us-west-2',
+                    :alert_to_sns => nil,
+                    :alert_to_slack => nil
+                    
     if options.key_path && options.key
       abort("Specify --key-path or --key, don't specify both")
     end

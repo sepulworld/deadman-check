@@ -52,7 +52,7 @@ class DeadmanCheckTest < Minitest::Test
     refute_nil ::DeadmanCheck::VERSION
   end
 
-  def test_consul_key_update
+  def test_consul_key_update_slack
     stub_request(:put, "http://127.0.0.1:8500/v1/kv/test").
       with(body: "{\"epoch\":#{Time.now.to_i},\"frequency\":\"300\"}").
       to_return(status: 200, body: "", headers: {})
@@ -61,23 +61,23 @@ class DeadmanCheckTest < Minitest::Test
     key_set.run_consul_key_update
   end
 
-  def test_recursive_key_lookup
+  def test_recursive_key_lookup_slack
     stub_request(:get, "http://127.0.0.1:8500/v1/kv/deadman/?recurse").
       to_return(status: 200, body: @@recursive_key_response, headers: {})
     stub_request(:post, "https://slack.com/api/chat.postMessage").
       to_return(status: 200, body: "{\"ok\":true}", headers: {})
     switch_monitor = DeadmanCheck::SwitchMonitor.new('127.0.0.1', '8500',
-      'deadman/', 'monitoroom', true, '30')
+      'deadman/', 'monitoroom', nil, nil, true, '30')
     switch_monitor.run_check_once
   end
 
-  def test_standalone_key_lookup
+  def test_standalone_key_lookup_slack
     stub_request(:get, "http://127.0.0.1:8500/v1/kv/deadman/myservice1").
       to_return(status: 200, body: @@standalone_key_response, headers: {})
     stub_request(:post, "https://slack.com/api/chat.postMessage").
       to_return(status: 200, body: "{\"ok\":true}", headers: {})
     switch_monitor = DeadmanCheck::SwitchMonitor.new('127.0.0.1', '8500',
-      'deadman/myservice1', 'monitoroom', false, '30')
+      'deadman/myservice1', 'monitoroom', nil, nil, false, '30')
     switch_monitor.run_check_once
   end
 end

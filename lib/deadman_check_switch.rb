@@ -11,6 +11,9 @@ module DeadmanCheck
     attr_accessor :host, :port, :target, :alert_to_slack,
       :alert_to_sns, :alert_to_sns_region, :recurse, :daemon_sleep
 
+    @alert_to_slack = nil
+    @alert_to_sns = nil
+
     def initialize(host, port, target, alert_to_slack, alert_to_sns,
                   alert_to_sns_region, recurse, daemon_sleep)
       @host = host
@@ -23,12 +26,16 @@ module DeadmanCheck
       @daemon_sleep = daemon_sleep.to_i
     end
 
-    unless alert_to_slack.nil?
-      DeadmanCheck::DeadmanCheckSlackAuth.new
+    unless @alert_to_slack.nil?
+      Slack.configure do |config|
+        config.token = ENV['SLACK_API_TOKEN']
+      end
     end
 
-    unless alert_to_sns.nil?
-      sns = DeadmanCheck::DeadmanCheckSnsAuth.new(@alert_to_sns_region)
+    unless @alert_to_sns.nil?
+      @sns = Aws::SNS::Client.new(
+        region: @alert_to_sns_region
+        )
     end
 
     def run_check_once
@@ -63,9 +70,9 @@ module DeadmanCheck
 
       def parse_recorded_epoch(recorded_epochs)
         # {"epoch":1493000501,"frequency":"300"}
-        value_json = JSON.parse(recorded_epochs)
-        frequency = value_json["frequency"].to_i
-        epoch = value_json["epoch"].to_i
+        value_json = JSON.parse(recorded_epochs[0][:value])
+        frequency = value_json["frequency"]
+        epoch = value_json["epoch"]
         return epoch, frequency
       end
 
@@ -106,7 +113,7 @@ module DeadmanCheck
       end
 
       def sns_alert(alert_to_sns, target, epoch_diff)
-        sns.publish(
+        @sns.publish(
           target_arn: @alert_to_sns,
           message_structure: 'json',
           message: {
