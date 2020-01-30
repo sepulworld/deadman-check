@@ -66,6 +66,7 @@ command :key_set do |c|
   c.option '--port PORT', String, 'port Consul is listening on'
   c.option '--key KEY', String, 'Consul key to report EPOCH time and frequency for service'
   c.option '--frequency FREQUENCY', String, 'Frequency at which this key should be updated in seconds'
+  c.option '--token TOKEN', String, 'Consul KV access token'
   c.action do |args, options|
     if options.frequency.nil?
       abort("Specify --frequency at which this key should be updated by the service")
@@ -74,7 +75,7 @@ command :key_set do |c|
       abort("Must specify a --key")
     end
     key_set = DeadmanCheck::KeySet.new(options.host, options.port, options.key,
-      options.frequency)
+                                       options.frequency, options.token)
     key_set.run_consul_key_update
   end
 end
