@@ -299,6 +299,9 @@ $ deadman-check key_set -h
 
     --frequency FREQUENCY
         Frequency at which this key should be updated in seconds
+
+    --consul-token TOKEN
+        Consul KV access token (optional)
 ```
 
 ### Usage for switch_monitor command
@@ -360,6 +363,9 @@ deadman/
 
     --daemon-sleep SECONDS
         Set the number of seconds to sleep in between switch checks, default 300
+
+    --consul-token TOKEN
+        Consul KV access token (optional)
 ```
 
 ## Development

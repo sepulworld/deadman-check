@@ -1,4 +1,4 @@
-FROM alpine:3.6
+FROM alpine:3.9.5
 MAINTAINER Zane Williamson <zane.williamson@gmail.com>
 
 # Install apk packages
@@ -22,8 +22,10 @@ ADD lib /app/lib
 VOLUME /app
 WORKDIR /app
 
-RUN gem install bundler && \
-    bundle install && \
-    rake install
+RUN gem install bundler
+RUN bundle install
+RUN rake install
+
+RUN ruby -v
 
 ENTRYPOINT ["deadman-check"]
