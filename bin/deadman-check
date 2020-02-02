@@ -28,11 +28,13 @@ command :switch_monitor do |c|
   c.option '--alert-to-sns-region AWSREGION', String, 'Amazon Web Services region the SNS topic is in, defaults to us-west-2'
   c.option '--daemon', 'Run as a daemon, otherwise will run check just once'
   c.option '--daemon-sleep SECONDS', String, 'Set the number of seconds to sleep in between switch checks, default 300'
+  c.option '--consul-token TOKEN', String, 'Consul KV access token'
   c.action do |args, options|
     options.default :daemon_sleep => 300,
                     :alert_to_sns_region => 'us-west-2',
                     :alert_to_sns => nil,
-                    :alert_to_slack => nil
+                    :alert_to_slack => nil,
+                    :consul_token => ""
 
     if options.key_path && options.key
       abort("Specify --key-path or --key, don't specify both")
@@ -47,7 +49,7 @@ command :switch_monitor do |c|
     switch_monitor = DeadmanCheck::SwitchMonitor.new(
       options.host, options.port,
       target, options.alert_to_slack, options.alert_to_sns,
-      options.alert_to_sns_region, recurse, options.daemon_sleep)
+      options.alert_to_sns_region, recurse, options.daemon_sleep, options.consul_token)
     if options.daemon
       Daemons.run(switch_monitor.run_check_daemon)
     else
@@ -66,7 +68,10 @@ command :key_set do |c|
   c.option '--port PORT', String, 'port Consul is listening on'
   c.option '--key KEY', String, 'Consul key to report EPOCH time and frequency for service'
   c.option '--frequency FREQUENCY', String, 'Frequency at which this key should be updated in seconds'
+  c.option '--consul-token TOKEN', String, 'Consul KV access token'
   c.action do |args, options|
+    options.default :consul_token => ""
+
     if options.frequency.nil?
       abort("Specify --frequency at which this key should be updated by the service")
     end
@@ -74,7 +79,7 @@ command :key_set do |c|
       abort("Must specify a --key")
     end
     key_set = DeadmanCheck::KeySet.new(options.host, options.port, options.key,
-      options.frequency)
+                                       options.frequency, options.consul_token)
     key_set.run_consul_key_update
   end
 end

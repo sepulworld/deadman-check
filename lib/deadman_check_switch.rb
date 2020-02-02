@@ -3,7 +3,7 @@ require 'deadman_check_global'
 require 'diplomat'
 require 'slack-ruby-client'
 require 'json'
-require 'aws-sdk'
+require 'aws-sdk-sns'
 
 module DeadmanCheck
   # Switch class
@@ -12,7 +12,7 @@ module DeadmanCheck
     :alert_to_sns, :alert_to_sns_region, :recurse, :daemon_sleep
 
     def initialize(host, port, target, alert_to_slack, alert_to_sns,
-                  alert_to_sns_region, recurse, daemon_sleep)
+                  alert_to_sns_region, recurse, daemon_sleep, consul_token)
       @host = host
       @port = port
       @target = target
@@ -21,6 +21,7 @@ module DeadmanCheck
       @alert_to_sns_region = alert_to_sns_region
       @recurse = recurse
       @daemon_sleep = daemon_sleep.to_i
+      @consul_token = consul_token
 
       unless @alert_to_slack.nil?
         Slack.configure do |config|
@@ -60,7 +61,7 @@ module DeadmanCheck
       end
 
       def get_recorded_epochs(host, port, target, recurse)
-        DeadmanCheck::DeadmanCheckGlobal.new.configure_diplomat(host, port)
+        DeadmanCheck::DeadmanCheckGlobal.new.configure_diplomat(host, port, @consul_token)
         recorded_epochs = Diplomat::Kv.get(target, recurse: recurse)
         return recorded_epochs
       end
@@ -79,7 +80,7 @@ module DeadmanCheck
 
       def parse_recorded_epoch(recorded_epochs)
         # {"epoch":1493000501,"frequency":"300"}
-        value_json = JSON.parse(recorded_epochs[0][:value])
+        value_json = JSON.parse(recorded_epochs)
         frequency = value_json["frequency"]
         epoch = value_json["epoch"]
         return epoch, frequency

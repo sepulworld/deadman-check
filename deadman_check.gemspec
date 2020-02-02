@@ -30,14 +30,14 @@ Gem::Specification.new do |spec|
   spec.executables   = "deadman-check"
   spec.require_paths = ["lib"]
 
-  spec.add_development_dependency "bundler", "~> 1.13"
+  spec.add_development_dependency "bundler", "~> 2.1"
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "minitest", "~> 5.0"
   spec.add_development_dependency "webmock", "~> 3.0"
 
   spec.add_dependency 'commander', '~> 4.4', '>= 4.4.3'
-  spec.add_dependency 'diplomat', '~> 2.0.0', '>= 2.0.0'
+  spec.add_dependency 'diplomat', '~> 2.2.5', '>= 2.0.0'
   spec.add_dependency 'slack-ruby-client', '~> 0.8.0'
   spec.add_dependency 'daemons', '~> 1.2.4', '>=1.2.4'
-  spec.add_dependency 'aws-sdk', '~> 2.10.21', '>=2.10.21'
+  spec.add_dependency 'aws-sdk-sns', '~> 1'
 end
