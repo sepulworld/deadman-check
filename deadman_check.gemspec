@@ -36,7 +36,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "webmock", "~> 3.0"
 
   spec.add_dependency 'commander', '~> 4.4', '>= 4.4.3'
-  spec.add_dependency 'diplomat', '~> 2.0.0', '>= 2.0.0'
+  spec.add_dependency 'diplomat', '~> 2.2.5', '>= 2.0.0'
   spec.add_dependency 'slack-ruby-client', '~> 0.8.0'
   spec.add_dependency 'daemons', '~> 1.2.4', '>=1.2.4'
   spec.add_dependency 'aws-sdk', '~> 2.10.21', '>=2.10.21'

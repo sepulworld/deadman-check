@@ -9,11 +9,11 @@ module DeadmanCheck
       return epoch_time_now
     end
 
-    def configure_diplomat(host, port, token)
+    def configure_diplomat(host, port, consul_token)
       Diplomat.configure do |config|
         config.url = "http://#{host}:#{port}"
-        if defined? token
-            config.options = {headers: {"X-Consul-Token" => token}}
+        if consul_token != ""
+            config.options = {headers: {"X-Consul-Token" => consul_token}}
         end
       end
     end

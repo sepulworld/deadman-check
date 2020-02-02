@@ -57,7 +57,7 @@ class DeadmanCheckTest < Minitest::Test
       with(body: "{\"epoch\":#{Time.now.to_i},\"frequency\":\"300\"}").
       to_return(status: 200, body: "", headers: {})
     key_set = DeadmanCheck::KeySet.new('127.0.0.1', '8500', 'test',
-     '300')
+     '300', '')
     key_set.run_consul_key_update
   end
 
@@ -67,7 +67,7 @@ class DeadmanCheckTest < Minitest::Test
     stub_request(:post, "https://slack.com/api/chat.postMessage").
       to_return(status: 200, body: "{\"ok\":true}", headers: {})
     switch_monitor = DeadmanCheck::SwitchMonitor.new('127.0.0.1', '8500',
-      'deadman/', 'monitoroom', nil, nil, true, '30')
+      'deadman/', 'monitoroom', nil, nil, true, '30', '')
     switch_monitor.run_check_once
   end
 
@@ -77,7 +77,7 @@ class DeadmanCheckTest < Minitest::Test
     stub_request(:post, "https://slack.com/api/chat.postMessage").
       to_return(status: 200, body: "{\"ok\":true}", headers: {})
     switch_monitor = DeadmanCheck::SwitchMonitor.new('127.0.0.1', '8500',
-      'deadman/myservice1', 'monitoroom', nil, nil, false, '30')
+      'deadman/myservice1', 'monitoroom', nil, nil, false, '30', '')
     switch_monitor.run_check_once
   end
 end
