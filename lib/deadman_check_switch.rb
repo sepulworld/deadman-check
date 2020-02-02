@@ -3,7 +3,7 @@ require 'deadman_check_global'
 require 'diplomat'
 require 'slack-ruby-client'
 require 'json'
-require 'aws-sdk'
+require 'aws-sdk-sns'
 
 module DeadmanCheck
   # Switch class
