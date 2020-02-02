@@ -1,7 +1,7 @@
 sudo: required
 language: ruby
 rvm:
-- 2.4.0
+- 2.4.5
 - 2.7.0
 install:
 - gem install bundler
