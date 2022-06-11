@@ -6,18 +6,36 @@
 A monitoring sidecar for Nomad periodic [jobs](https://www.nomadproject.io/docs/job-specification/periodic.html) that alerts if the periodic job isn't
 running at the expected interval.
 
-### 2 Monitoring Modes
+
+# Overview
+1. [Requierments](#requirements)
+2. [Monitoring Modes](#monitoringmodes)
+3. [Alert Options](#alertoptions)
+4. [Example Usage](#exampleusage)
+5. [Alerting Setup](#alertingsetup)
+6. [CLI Usage](#cliusage)
+7. [Local System Installation Option](#localsysteminstallationoption)
+8. [Run deadman-check via Docker Option](#rundeadmanviadockeroption)
+9. [CLI Command Help](#clicommandhelp)
+  1. [Usage for key_set command](#usageforkeysetcommand)
+  2. [Usage for switch_monitor command](#usageforswitchmonitorcommand)
+10. [Development](#development)
+11. [Contributing](#contributing)
+12. [License](#license)
+
+## Requirements
+
+* [Consul](https://www.consul.io/)
+
+
+## Monitoring Modes
 
 1. Run with the Nomad periodic job as an additional [task](https://www.nomadproject.io/docs/job-specification/task.html). In this mode deadman-check will leverage a Consul key store to evaluate task frequency requirements. It uses [Epoch time](https://en.wikipedia.org/wiki/Unix_time) to verify task is running within time frequency required.
 
 2. Run as a stand alone process that can monitor a large grouping of jobs which are reporting time frequency values into a Consul key.
 
 
-### Requirements
-
-* [Consul](https://www.consul.io/) instance or cluster
-
-### Alerting Options
+## Alert Options
 
 * [Slack](https://slack.com/)
 <img width="752" alt="screen shot 2017-03-26 at 3 29 28 pm" src="https://cloud.githubusercontent.com/assets/538171/24335811/2e57eee8-1239-11e7-9fff-c8a10d956f2e.png">
@@ -25,7 +43,7 @@ running at the expected interval.
 * [AWS SNS](https://aws.amazon.com/documentation/sns/) - Broadcasting alerts and/or triggering [AWS Lambda functions](https://docs.aws.amazon.com/sns/latest/dg/sns-lambda.html) to run code
 <img width="903" alt="screen shot 2017-08-04 at 11 39 12 am" src="https://user-images.githubusercontent.com/538171/28982223-e576743c-7909-11e7-8e65-ebb0b4a76762.png">
 
-### Example Usage
+## Example Usage
 
 Let's say I have a Nomad periodic job that is set to run every 10 minutes. The Nomad configuration looks like this:
 
@@ -197,25 +215,7 @@ job "DeadmanMonitoring" {
 }
 ```
 
-# Non-Nomad Use:
-
-## Local system installation
-
-execute:
-
-    $ bundle install
-    $ gem install deadman_check
-
-## Install and run deadman-check via Docker
-
-```
-$ alias deadman-check='\
-  docker run \
-    -it --rm --name=deadman-check \
-    sepulworld/deadman-check'
-```
-
-### Alerting Setup
+## Alerting Setup
 
 * Slack alerting requires a SLACK_API_TOKEN environment variable to be set (use [Slack Bot integration](https://my.slack.com/services/new/bot)) (optional)
 
@@ -224,7 +224,26 @@ $ alias deadman-check='\
   - The shared credentials ini file at ~/.aws/credentials (more information)
   - From an [instance profile](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-ec2_instance-profiles.html) when running on EC2
 
-### Usage via Local System Install
+
+# CLI Usage:
+
+## Local System Installation Option 
+
+```
+gem install deadman_check
+```
+
+## Run deadman-check via Docker Option
+
+```
+$ alias deadman-check='\
+  docker run \
+    -it --rm --name=deadman-check \
+    sepulworld/deadman-check'
+```
+
+
+## CLI Command Help 
 
 ```bash
 $ deadman-check -h
