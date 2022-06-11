@@ -3,29 +3,29 @@
 ![CodeQL](https://github.com/sepulworld/deadman-check/workflows/CodeQL/badge.svg)
 [![Gem Version](https://badge.fury.io/rb/deadman_check.svg)](http://badge.fury.io/rb/deadman_check)
 
-A monitoring companion for Nomad periodic [jobs](https://www.nomadproject.io/docs/job-specification/periodic.html) that alerts if periodic isn't
+A monitoring sidecar for Nomad periodic [jobs](https://www.nomadproject.io/docs/job-specification/periodic.html) that alerts if the periodic job isn't
 running at the expected interval.
 
-The deadman-check has 2 modes:
+### 2 Monitoring Modes
 
-1. Run with the Nomad periodic job as an additional [task](https://www.nomadproject.io/docs/job-specification/task.html) to update a key in Consul with current EPOCH time and required time frequency.
+1. Run with the Nomad periodic job as an additional [task](https://www.nomadproject.io/docs/job-specification/task.html). In this mode deadman-check will leverage a Consul key store to evaluate task frequency requirements. It uses [Epoch time](https://en.wikipedia.org/wiki/Unix_time) to verify task is running within time frequency required.
 
-2. Run as a separate process that will monitor the Consul key's EPOCH
-time value and alert if that value fails to meet a time frequency threshold that
-is expected for that job.
+2. Run as a stand alone process that can monitor a large grouping of jobs which are reporting time frequency values into a Consul key.
 
 
 ### Requirements
-* [Consul](https://www.consul.io/) instance or cluster to report to
+
+* [Consul](https://www.consul.io/) instance or cluster
 
 ### Alerting Options
+
 * [Slack](https://slack.com/)
 <img width="752" alt="screen shot 2017-03-26 at 3 29 28 pm" src="https://cloud.githubusercontent.com/assets/538171/24335811/2e57eee8-1239-11e7-9fff-c8a10d956f2e.png">
 
 * [AWS SNS](https://aws.amazon.com/documentation/sns/) - Broadcasting alerts and/or triggering [AWS Lambda functions](https://docs.aws.amazon.com/sns/latest/dg/sns-lambda.html) to run code
 <img width="903" alt="screen shot 2017-08-04 at 11 39 12 am" src="https://user-images.githubusercontent.com/538171/28982223-e576743c-7909-11e7-8e65-ebb0b4a76762.png">
 
-## Example Usage
+### Example Usage
 
 Let's say I have a Nomad periodic job that is set to run every 10 minutes. The Nomad configuration looks like this:
 
@@ -56,8 +56,7 @@ job "SilverBulletPeriodic" {
 }
 ```
 
-To monitor the SilverBulletPeriodicProcess task let's add a deadmad-check task to
-run post updates to a Consul endpoint (10.0.0.1 for this example)
+To monitor the SilverBulletPeriodicProcess task let's add a deadmad-check task. The host input is the Consul endpoint required by deadman-check (In this case 10.0.0.10)
 
 ```hcl
 job "SilverBulletPeriodic" {
@@ -89,7 +88,7 @@ job "SilverBulletPeriodic" {
         command  = "key_set"
         args     = [
           "--host",
-          "10.0.0.1",
+          "10.0.0.10",
           "--port",
           "8500",
           "--key",
@@ -107,9 +106,9 @@ job "SilverBulletPeriodic" {
 ```
 <img width="1215" alt="screen shot 2017-04-23 at 11 14 36 pm" src="https://cloud.githubusercontent.com/assets/538171/25324439/b65541d6-287a-11e7-9b6d-4e1c9565eed2.png">
 
-Now the key, deadman/SilverBulletPeriodicProcess, at 10.0.0.1 will be updated with
-the EPOCH time for each SilverBulletPeriodic job run. If the job hangs or fails to run
-we will know via the EPOCH time entry going stale.
+The Consul key, deadman/SilverBulletPeriodicProcess, at 10.0.0.10 will be updated with
+the Epoch time for each SilverBulletPeriodic job run. If the job hangs or fails to run
+the job frequency calculation will be in an alerting state. 
 
 Next we need a job that will run to monitor this key.
 
@@ -126,7 +125,7 @@ job "DeadmanMonitoring" {
         command  = "switch_monitor"
         args     = [
           "--host",
-          "10.0.0.1",
+          "10.0.0.10",
           "--port",
           "8500",
           "--key",
@@ -149,7 +148,7 @@ job "DeadmanMonitoring" {
 }
 ```
 
-Monitor a Consul key that contains an EPOCH time entry. Send a Slack message if EPOCH age hits given frequency threshold
+Monitor a Consul key that contains an Epoch time entry. Send a Slack message if Epoch age hits given frequency threshold
 
 <img width="752" alt="screen shot 2017-03-26 at 3 29 28 pm" src="https://cloud.githubusercontent.com/assets/538171/24335811/2e57eee8-1239-11e7-9fff-c8a10d956f2e.png">
 
@@ -198,8 +197,6 @@ job "DeadmanMonitoring" {
 }
 ```
 
-
-
 # Non-Nomad Use:
 
 ## Local system installation
@@ -209,30 +206,25 @@ execute:
     $ bundle install
     $ gem install deadman_check
 
-## Install and run deadman-check from Docker
+## Install and run deadman-check via Docker
 
 ```
-# Optional: If you don't pull explicitly, `docker run` will do it for you
-$ docker pull sepulworld/deadman-check
-
 $ alias deadman-check='\
   docker run \
     -it --rm --name=deadman-check \
     sepulworld/deadman-check'
 ```
 
-(Depending on how your system is set up, you might have to add sudo in front of the above docker commands or add your user to the docker group).
-
-If you don't do the docker pull, the first time you run deadman-check, the docker run command will automatically pull the sepulworld/deadman-check image on the Docker Hub. Subsequent runs will use a locally cached copy of the image and will not have to download anything.
-
 ### Alerting Setup
+
 * Slack alerting requires a SLACK_API_TOKEN environment variable to be set (use [Slack Bot integration](https://my.slack.com/services/new/bot)) (optional)
+
 * [AWS SNS](https://aws.amazon.com/documentation/sns/) alerting requires appropreiate AWS IAM access to target SNS topic. One of the following can be used for authentication. IAM policy access to publish to the topic will be required
   - ENV['AWS_ACCESS_KEY_ID'] and ENV['AWS_SECRET_ACCESS_KEY']
   - The shared credentials ini file at ~/.aws/credentials (more information)
   - From an [instance profile](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-ec2_instance-profiles.html) when running on EC2
 
-## Usage via Local System Install
+### Usage via Local System Install
 
 ```bash
 $ deadman-check -h
@@ -366,17 +358,17 @@ deadman/
         Consul KV access token (optional)
 ```
 
-## Development
+### Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
 To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 
-## Contributing
+### Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/deadman_check. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
 
 
-## License
+### License
 
 The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
