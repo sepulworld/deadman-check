@@ -1,9 +1,7 @@
 # Deadman Check
 
-[![Build Status](https://travis-ci.org/sepulworld/deadman-check.svg)](https://travis-ci.org/sepulworld/deadman-check)
+![CodeQL](https://github.com/sepulworld/deadman-check/workflows/CodeQL/badge.svg)
 [![Gem Version](https://badge.fury.io/rb/deadman_check.svg)](http://badge.fury.io/rb/deadman_check)
-[![Docker Image](https://images.microbadger.com/badges/image/sepulworld/deadman-check.svg)](http://microbadger.com/images/sepulworld/deadman-check "Get your own image badge on microbadger.com")
-[![Docker Image Version](https://images.microbadger.com/badges/version/sepulworld/deadman-check.svg)](http://microbadger.com/images/sepulworld/deadman-check "Get your own version badge on microbadger.com")
 
 A monitoring companion for Nomad periodic [jobs](https://www.nomadproject.io/docs/job-specification/periodic.html) that alerts if periodic isn't
 running at the expected interval.
